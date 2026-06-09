@@ -132,6 +132,17 @@ def step1_baseline(daily_idx, rf_d):
         "buy_hold": {k: r4(rows[0][k]) for k in ("cagr", "volatility", "sharpe", "max_drawdown", "calmar")},
         "ma200_cash": {k: r4(rows[1][k]) for k in ("cagr", "volatility", "sharpe", "max_drawdown", "calmar")},
     }
+    colors = {"Buy & Hold 1x": config.COLORS["buy_hold"], "MA200 -> Cash": config.COLORS["ma_cash"]}
+    fig = pl.plot_equity_comparison(
+        {"Buy & Hold 1x": bh.equity, "MA200 -> Cash": ma.equity},
+        "Step 1 — Buy & Hold vs the 200-day MA rule (S&P 500 total return, 1928+)",
+        "F1_baseline_equity.png", colors=colors)
+    save_chart(fig, "F1_baseline_equity.png")
+    fig = pl.plot_drawdowns(
+        {"Buy & Hold 1x": bh.net_returns, "MA200 -> Cash": ma.net_returns},
+        "Step 1 — Drawdowns: Buy & Hold vs the 200-day MA rule",
+        "F1_baseline_drawdowns.png", colors=colors)
+    save_chart(fig, "F1_baseline_drawdowns.png")
     return bh, ma, u
 
 
@@ -278,6 +289,111 @@ def step3b_breakeven_chart(u, rf_d):
 
 
 # ===========================================================================
+# Step 3c: the "flat total return" leverage map (volatility decay vs trend)
+# ===========================================================================
+def step3c_zero_return_map(u):
+    """Map of the ZERO-RETURN leverage: the daily leverage at which volatility
+    decay exactly cancels the trend, so the long-run TOTAL compound return is 0.
+
+    In terms of the 1x compound return g (CAGR) and volatility sigma,
+        leveraged CAGR(L) = 0  =>  L_zero = 2*g/sigma^2 + 1.
+    Below L_zero leverage still grows; above it, decay wins and you LOSE money;
+    far above it you are effectively wiped out (terminal wealth -> 0).
+    """
+    print("[step 3c] zero-return (flat) leverage map ...")
+    # S&P marker: realised CAGR & volatility over the LAST ~10 years.
+    last10 = u[u.index >= (u.index.max() - pd.Timedelta(days=3653))]
+    g_sp = mx.cagr(last10)
+    sig_sp = mx.annual_volatility(last10)
+    Lzero_sp = 2 * g_sp / sig_sp ** 2 + 1
+
+    cagrs = np.linspace(0.0, 0.20, 81)   # 1x CAGR ("trend")
+    vols = np.linspace(0.05, 0.60, 81)
+    G, V = np.meshgrid(cagrs, vols)
+    Lzero = np.clip(2.0 * G / V ** 2 + 1.0, 1.0, 15.0)
+
+    pl.setup_style()
+    fig, ax = plt.subplots(figsize=(11.5, 6.8))
+    cf = ax.contourf(G * 100, V * 100, Lzero, levels=np.linspace(1, 15, 29),
+                     cmap="RdYlGn", extend="max")
+    lines = ax.contour(G * 100, V * 100, Lzero,
+                       levels=[2, 3, 4, 5, 7, 10, 13], colors="black", linewidths=1.0)
+    ax.clabel(lines, fmt=lambda x: f"{x:g}x", fontsize=9)
+    ax.plot(g_sp * 100, sig_sp * 100, marker="*", color="black", markersize=22,
+            markeredgecolor="white", zorder=5)
+    ax.annotate(f"S&P 500 (last 10y)\nCAGR {g_sp:.1%}, vol {sig_sp:.0%}\n"
+                f"flat-return leverage ≈ {Lzero_sp:.1f}x",
+                xy=(g_sp * 100, sig_sp * 100), xytext=(g_sp * 100 - 6.5, sig_sp * 100 + 11),
+                fontsize=9, arrowprops=dict(arrowstyle="->", color="black"),
+                bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="black", alpha=0.85))
+    fig.colorbar(cf, ax=ax).set_label("Zero-return daily leverage (total compound return = 0)")
+    ax.set_xlabel("Annual trend  (1x CAGR, %)")
+    ax.set_ylabel("Annual volatility (%)")
+    ax.set_title("Where volatility decay eats the whole trend\n"
+                 "Leverage at the contour gives 0% total return; above it, "
+                 "leverage LOSES money (e.g. ~10x flattens the recent S&P)")
+    save_chart(fig, "F3_zero_return_leverage_map.png")
+
+    H["step3c_zero_return"] = {"sp_last10_cagr": r4(g_sp), "sp_last10_vol": r4(sig_sp),
+                               "sp_zero_return_leverage": r4(Lzero_sp)}
+
+
+# ===========================================================================
+# Step 5: buying leverage at crisis lows (does timing the bottom work?)
+# ===========================================================================
+def step5_event_studies(daily_idx, u):
+    """Forward total return from major market BOTTOMS for 1x / 1.5x / 2x / 3x
+    (synthetic daily leverage). Shows leverage pays HUGELY if you buy the exact
+    low -- the catch being that you cannot know the low in real time."""
+    print("[step 5] buying leverage at crisis lows ...")
+    windows = [("GFC bottom (2009)", "2008-09-01", "2009-12-31"),
+               ("COVID bottom (2020)", "2020-02-01", "2020-07-31"),
+               ("2022 bear bottom", "2022-06-01", "2023-06-30"),
+               ("2025 tariff selloff", "2025-01-01", "2025-12-31")]
+    levs = [1.0, 1.5, 2.0, 3.0]
+    horizons = [("6mo", 126), ("1yr", 252), ("3yr", 756)]
+
+    rows = []
+    for label, s, e in windows:
+        seg = daily_idx[(daily_idx.index >= pd.Timestamp(s)) & (daily_idx.index <= pd.Timestamp(e))]
+        if seg.empty:
+            continue
+        low_date = seg.idxmin()
+        fwd = u[u.index > low_date]
+        for hl, hd in horizons:
+            if len(fwd) < hd:
+                continue
+            wr = fwd.iloc[:hd]
+            row = {"event": label, "low_date": str(low_date.date()), "horizon": hl}
+            for L in levs:
+                row[f"{L:g}x"] = float((1.0 + L * wr).cumprod().iloc[-1] - 1.0)
+            rows.append(row)
+    tbl = pd.DataFrame(rows)
+    save_table(tbl, "faber_step5_buy_leverage_at_lows.csv")
+
+    # Grouped bar chart at the 1-year horizon.
+    one = tbl[tbl["horizon"] == "1yr"].reset_index(drop=True)
+    if len(one):
+        pl.setup_style()
+        fig, ax = plt.subplots(figsize=(11, 5.8))
+        x = np.arange(len(one)); width = 0.2
+        for i, L in enumerate(levs):
+            ax.bar(x + (i - 1.5) * width, one[f"{L:g}x"] * 100, width, label=f"{L:g}x")
+        ax.set_xticks(x); ax.set_xticklabels(one["event"], fontsize=9)
+        ax.set_ylabel("1-year forward total return (%)")
+        ax.axhline(0, color="black", lw=0.8)
+        ax.set_title("If you BUY leverage at the exact bottom: 1-year forward return\n"
+                     "(leverage amplifies V-shaped recoveries — but the low is only "
+                     "obvious in hindsight)")
+        ax.legend(title="Daily leverage")
+        save_chart(fig, "F5_buy_leverage_at_lows.png")
+
+    H["step5_event_studies"] = {
+        r["event"] + f" ({r['horizon']})": {f"{L:g}x": r4(r[f"{L:g}x"]) for L in levs}
+        for r in rows if r["horizon"] == "1yr"}
+
+
+# ===========================================================================
 # Step 4: the inverted strategy (leverage ABOVE the MA)
 # ===========================================================================
 def step4_inverted(daily_idx, u, rf_d, bh, ma):
@@ -308,13 +424,15 @@ def step4_inverted(daily_idx, u, rf_d, bh, ma):
         net_ret[f"Lev {L:g}x ABOVE (net)"] = net.net_returns
         tags[f"Lev {L:g}x ABOVE (net)"] = "leveraged_above_ma_net"
 
-    # For contrast: the ORIGINAL idea (leverage BELOW the MA) at 2x, net.
-    below2 = bt.leveraged_bad_market(daily_idx, u, 200, 2.0, rf_daily=rf_d,
-                                     costs=config.DEFAULT_COSTS)
-    rows.append(metrics_row("Lev 2x BELOW (net) [original]", below2.net_returns, rf_d, 252,
-                            {"strategy": "leveraged_below_ma_net"}))
-    net_ret["Lev 2x BELOW (net) [original]"] = below2.net_returns
-    tags["Lev 2x BELOW (net) [original]"] = "leveraged_below_ma_net"
+    # The "buy leverage LOW" direction (leverage BELOW the MA) at each level, net.
+    for L in levs:
+        below = bt.leveraged_bad_market(daily_idx, u, 200, L, rf_daily=rf_d,
+                                        costs=config.DEFAULT_COSTS)
+        nm = f"Lev {L:g}x BELOW (net)"
+        rows.append(metrics_row(nm, below.net_returns, rf_d, 252,
+                                {"strategy": "leveraged_below_ma_net"}))
+        net_ret[nm] = below.net_returns
+        tags[nm] = "leveraged_below_ma_net"
 
     tbl = pd.DataFrame(rows)
     save_table(tbl, "faber_step4_inverted_strategy.csv")
@@ -334,6 +452,18 @@ def step4_inverted(daily_idx, u, rf_d, bh, ma):
         "F4_inverted_drawdowns.png")
     save_chart(fig, "F4_inverted_drawdowns.png")
 
+    # Direction comparison at 2x: leverage ABOVE vs BELOW the MA (+ baselines).
+    dirc = {n: rt.cumulative_index(net_ret[n]) for n in
+            ("Buy & Hold 1x", "MA200 -> Cash", "Lev 2x ABOVE (net)", "Lev 2x BELOW (net)")}
+    fig = pl.plot_equity_comparison(
+        dirc, "Which direction? Leverage ABOVE vs BELOW the 200-day MA (2x, net)",
+        "F4_direction_comparison.png",
+        colors={"Buy & Hold 1x": config.COLORS["buy_hold"],
+                "MA200 -> Cash": config.COLORS["ma_cash"],
+                "Lev 2x ABOVE (net)": config.COLORS["leveraged"],
+                "Lev 2x BELOW (net)": config.COLORS["neutral"]})
+    save_chart(fig, "F4_direction_comparison.png")
+
     # Headline: best inverted (net) by Sharpe vs buy&hold.
     inv = tbl[tbl["strategy"] == "leveraged_above_ma_net"].copy()
     best = inv.loc[inv["sharpe"].idxmax()]
@@ -348,9 +478,10 @@ def step4_inverted(daily_idx, u, rf_d, bh, ma):
             row["name"]: {"cagr": r4(row["cagr"]), "sharpe": r4(row["sharpe"]),
                           "max_drawdown": r4(row["max_drawdown"]), "calmar": r4(row["calmar"])}
             for _, row in inv.iterrows()},
-        "original_below_2x_net": {
-            k: r4(tbl[tbl.strategy == "leveraged_below_ma_net"].iloc[0][k])
-            for k in ("cagr", "sharpe", "max_drawdown", "calmar")},
+        "below_net_by_leverage": {
+            row["name"]: {"cagr": r4(row["cagr"]), "sharpe": r4(row["sharpe"]),
+                          "max_drawdown": r4(row["max_drawdown"]), "calmar": r4(row["calmar"])}
+            for _, row in tbl[tbl["strategy"] == "leveraged_below_ma_net"].iterrows()},
     }
     H["step4_inverted_2000plus"] = {
         row["name"]: {"cagr": r4(row["cagr"]), "sharpe": r4(row["sharpe"]),
@@ -384,6 +515,8 @@ def main():
     step2_leverage_index(daily_idx, u, rf_d, bh, ma)
     step3_surfaces(u, rf_d)
     step3b_breakeven_chart(u, rf_d)
+    step3c_zero_return_map(u)
+    step5_event_studies(daily_idx, u)
     step4_inverted(daily_idx, u, rf_d, bh, ma)
 
     with open(config.RESULTS_DIR / "headline_faber.json", "w") as f:

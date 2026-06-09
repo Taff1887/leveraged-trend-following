@@ -72,6 +72,37 @@
     "breakeven_leverage": 3.1337,
     "note": "iid model; real fat tails / vol-clustering lower the realised optimum"
   },
+  "step3c_zero_return": {
+    "sp_last10_cagr": 0.1534,
+    "sp_last10_vol": 0.1808,
+    "sp_zero_return_leverage": 10.3893
+  },
+  "step5_event_studies": {
+    "GFC bottom (2009) (1yr)": {
+      "1x": 0.7229,
+      "1.5x": 1.2182,
+      "2x": 1.82,
+      "3x": 3.3894
+    },
+    "COVID bottom (2020) (1yr)": {
+      "1x": 0.778,
+      "1.5x": 1.3188,
+      "2x": 1.9803,
+      "3x": 3.7154
+    },
+    "2022 bear bottom (1yr)": {
+      "1x": 0.2305,
+      "1.5x": 0.3515,
+      "2x": 0.4746,
+      "3x": 0.7218
+    },
+    "2025 tariff selloff (1yr)": {
+      "1x": 0.3855,
+      "1.5x": 0.6145,
+      "2x": 0.8693,
+      "3x": 1.4588
+    }
+  },
   "step4_inverted": {
     "buy_hold": {
       "cagr": 0.1014,
@@ -106,11 +137,25 @@
         "calmar": 0.1827
       }
     },
-    "original_below_2x_net": {
-      "cagr": 0.0568,
-      "sharpe": 0.206,
-      "max_drawdown": -0.9818,
-      "calmar": 0.0579
+    "below_net_by_leverage": {
+      "Lev 1.5x BELOW (net)": {
+        "cagr": 0.079,
+        "sharpe": 0.2708,
+        "max_drawdown": -0.9431,
+        "calmar": 0.0838
+      },
+      "Lev 2x BELOW (net)": {
+        "cagr": 0.0568,
+        "sharpe": 0.206,
+        "max_drawdown": -0.9818,
+        "calmar": 0.0579
+      },
+      "Lev 3x BELOW (net)": {
+        "cagr": -0.0024,
+        "sharpe": 0.1304,
+        "max_drawdown": -0.9987,
+        "calmar": -0.0024
+      }
     }
   },
   "step4_inverted_2000plus": {
@@ -144,11 +189,23 @@
       "max_drawdown": -0.7352,
       "calmar": 0.1816
     },
-    "Lev 2x BELOW (net) [original]": {
+    "Lev 1.5x BELOW (net)": {
+      "cagr": 0.0715,
+      "sharpe": 0.3243,
+      "max_drawdown": -0.7231,
+      "calmar": 0.0989
+    },
+    "Lev 2x BELOW (net)": {
       "cagr": 0.057,
       "sharpe": 0.2772,
       "max_drawdown": -0.8591,
       "calmar": 0.0663
+    },
+    "Lev 3x BELOW (net)": {
+      "cagr": 0.0095,
+      "sharpe": 0.2228,
+      "max_drawdown": -0.9722,
+      "calmar": 0.0097
     }
   }
 }

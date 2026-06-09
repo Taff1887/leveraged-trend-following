@@ -77,16 +77,29 @@ Part II (run `python run_faber_leverage.py`) does the analysis Faber's way —
 −83.7%→−42.2% drawdown reduction to within a point) — and tests the **inverted**
 rule on daily data back to **1928**: *leverage above the trend, 1× below.*
 
-**Full history — 1928–2026, net of costs:**
+**Which direction? Full history — 1928–2026, net of costs.** "Buy leverage low"
+(below the MA) vs "leverage the uptrend" (above the MA), at every level:
 
-| Strategy | CAGR | Sharpe | Max DD | Calmar |
-|---|---|---|---|---|
-| Buy & Hold 1× | 10.1% | 0.40 | −84% | 0.12 |
-| MA200 → Cash | 11.3% | **0.60** | **−46%** | **0.24** |
-| Lev 1.5× ABOVE MA | 11.9% | 0.43 | −86% | 0.14 |
-| **Lev 2× ABOVE MA** | 14.2% | 0.47 | −89% | 0.16 |
-| Lev 3× ABOVE MA | **17.5%** | 0.50 | −96% | 0.18 |
-| Lev 2× BELOW MA *(Part I)* | 5.7% | 0.21 | −98% | 0.06 |
+| Strategy | CAGR | Sharpe | Sortino | Max DD | Calmar |
+|---|---|---|---|---|---|
+| Buy & Hold 1× | 10.1% | 0.40 | 0.56 | −84% | 0.12 |
+| MA200 → Cash | 11.3% | **0.60** | **0.84** | **−46%** | **0.24** |
+| Lev 1.5× **ABOVE** | 11.9% | 0.43 | 0.60 | −86% | 0.14 |
+| Lev 2× **ABOVE** | 14.2% | 0.47 | 0.66 | −89% | 0.16 |
+| Lev 3× **ABOVE** | **17.5%** | 0.50 | 0.71 | −96% | 0.18 |
+| Lev 1.5× *BELOW* | 7.9% | 0.27 | 0.38 | −94% | 0.08 |
+| Lev 2× *BELOW* | 5.7% | 0.21 | 0.29 | −98% | 0.06 |
+| Lev 3× *BELOW* | −0.2% | 0.13 | 0.19 | −100% | −0.00 |
+
+The intuitive **"buy leverage low"** (below the MA) gets *worse* with leverage and
+3× actually loses money — because the 200-day MA flags "below trend" at the
+*start* of declines (high-volatility, still-falling), not at the bottom.
+**Leveraging the uptrend (above the MA)** gets *better* with leverage. Same idea,
+opposite direction, ~2000× difference in terminal wealth:
+
+<p align="center">
+<img src="charts/F4_direction_comparison.png" width="80%">
+</p>
 
 **Closer look — 2000–2026 only** (excludes 1929/1987, so drawdowns are more
 survivable):
@@ -111,14 +124,24 @@ growth-optimum for the S&P is **Kelly ≈ 2×** (break-even ≈ 3.1×).
 <img src="charts/F4_inverted_equity.png" width="80%">
 </p>
 
-**How much leverage matches the S&P?** This map plots the **break-even daily
-leverage** — the level whose compound return exactly ties 1× — for every
-combination of trend and volatility. On or below the labelled contour, leverage
-*matches or beats* 1×; above it, **volatility decay makes leverage lose**. The
-S&P (★) sits near its ≈3.1× break-even line.
+**Leverage works if you time it.** Buying leverage at the *exact* market bottom is
+spectacular — 1-year forward total return of **+339% (3×) off the GFC low** and
+**+372% off the COVID low** — the problem is the low is only obvious in hindsight,
+and the MA's "below-trend" signal fires at the *start* of declines, not the bottom.
 
 <p align="center">
-<img src="charts/F3_breakeven_leverage_map.png" width="80%">
+<img src="charts/F5_buy_leverage_at_lows.png" width="80%">
+</p>
+
+**How much leverage is "too much"?** Two maps over trend × volatility. The
+**break-even** map shows the leverage that exactly *ties* 1× (S&P ★ ≈ 3.1×); the
+**zero-return** map shows the leverage at which volatility decay cancels the trend
+entirely (total return = 0). For the recent S&P (CAGR ~15%, vol ~18%) that flat
+point is **≈ 10×** — a "10× S&P" fund would have gone nowhere.
+
+<p align="center">
+<img src="charts/F3_breakeven_leverage_map.png" width="49%">
+<img src="charts/F3_zero_return_leverage_map.png" width="49%">
 </p>
 
 **Net takeaway:** trend-following is fundamentally a *risk-reducer*; *if* you add
