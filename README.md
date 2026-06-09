@@ -49,12 +49,12 @@ S&P 500 daily total return, **1928–2026, net of costs** (fees + financing + tu
 
 | Strategy | Grew $1 to | CAGR | Vol | Sharpe | Sortino | Max DD | Calmar |
 |---|---|---|---|---|---|---|---|
-| Buy & Hold 1× | $13,021 | 10.1% | 18.9% | 0.40 | 0.56 | −83.9% | 0.12 |
-| MA200 → Cash (Faber) | $33,090 | 11.3% | 12.6% | **0.60** | **0.84** | **−46.2%** | **0.24** |
-| Lev 1.5× above MA | $55,471 | 11.9% | 23.6% | 0.43 | 0.60 | −85.7% | 0.14 |
-| Lev 2× above MA | $402,863 | 14.2% | 28.9% | 0.47 | 0.66 | −89.2% | 0.16 |
-| Lev 3× above MA | $6,429,403 | 17.5% | 40.4% | 0.50 | 0.71 | −95.7% | 0.18 |
-| Lev 4× above MA | **$20,129,416** | **18.9%** | 52.5% | 0.52 | 0.73 | −99.2% | 0.19 |
+| Buy & Hold 1× | $13,021 | 10.1% | 18.9% | 0.43 | 0.62 | −83.9% | 0.12 |
+| MA200 → Cash (Faber) | $25,922 | 11.0% | 12.6% | **0.63** | **0.90** | **−46.4%** | **0.24** |
+| Lev 1.5× above MA | $70,781 | 12.2% | 23.6% | 0.47 | 0.66 | −85.7% | 0.14 |
+| Lev 2× above MA | $655,939 | 14.8% | 28.9% | 0.51 | 0.72 | −89.0% | 0.17 |
+| Lev 3× above MA | $17,050,454 | 18.7% | 40.4% | 0.55 | 0.77 | −95.5% | 0.20 |
+| Lev 4× above MA | **$87,028,073** | **20.7%** | 52.5% | 0.56 | 0.80 | −98.8% | 0.21 |
 
 <p align="center"><img src="charts/lev_above_full.png" width="82%"></p>
 
@@ -73,14 +73,14 @@ volatility, still falling), not at the bottom — exactly where leverage hurts m
 
 Holding each leverage level *constantly* (dotted) vs only **above the MA** (solid).
 The switch wins on CAGR, Sharpe **and** drawdown at every level — over a century,
-**constant 4× grew $1 to just $6** (CAGR 1.8%), while switched 4× grew $1 to **$20M**:
+**constant 4× grew $1 to just $54** (CAGR 4.2%), while switched 4× grew $1 to **$87M**:
 
 | | Grew $1 to | Sharpe | Max DD |
 |---|---|---|---|
-| Always 2× (constant) | $23,866 | 0.36 | −99% |
-| **Lev 2× above MA** | $402,863 | 0.47 | −89% |
-| Always 4× (constant) | **$6 (CAGR 1.8%)** | 0.36 | −100% |
-| **Lev 4× above MA** | $20,129,416 | 0.52 | −99.2% |
+| Always 2× (constant) | $49,549 | 0.40 | −99% |
+| **Lev 2× above MA** | $655,939 | 0.51 | −89% |
+| Always 4× (constant) | **$54 (CAGR 4.2%)** | 0.40 | −100% |
+| **Lev 4× above MA** | $87,028,073 | 0.56 | −99% |
 
 <p align="center"><img src="charts/F12_constant_vs_switch.png" width="82%"></p>
 
@@ -92,9 +92,9 @@ gets the closest of any leveraged variant to plain MA→cash on risk-adjusted te
 
 | Strategy | Grew $1 to | CAGR | Vol | Sharpe | Max DD | Calmar |
 |---|---|---|---|---|---|---|
-| Lev 2× above → **cash** | $1,023,603 | 15.3% | 25.3% | 0.53 | −75% | 0.20 |
-| **3-tier** 1.5× | $87,949 | 12.4% | 17.4% | 0.53 | −58% | 0.21 |
-| **3-tier** 2× | $398,471 | 14.2% | 22.5% | 0.53 | −68% | 0.21 |
+| Lev 2× above → **cash** | $1,305,593 | 15.6% | 25.3% | 0.57 | −75% | 0.21 |
+| **3-tier** 1.5× | $83,682 | 12.4% | 17.4% | 0.57 | −58% | 0.21 |
+| **3-tier** 2× | $460,493 | 14.3% | 22.5% | 0.57 | −68% | 0.21 |
 
 <p align="center">
 <img src="charts/lev_cash_full.png" width="49%">
@@ -236,11 +236,13 @@ reports/
   that `^GSPC` price + the Shiller dividend yield (this reconstruction tracks the
   real series with 0.5%/yr error and 0.9996 correlation over their overlap).
 * **Monthly total return back to 1901** (Shiller) for the Faber replication.
-* **Cash / financing:** `^IRX` 13-week T-bill (a 3.5% constant before 1960).
+* **Cash / financing:** real T-bill rates throughout — `^IRX` (13-week) from 1960,
+  and the Ken French / Ibbotson 1-month T-bill (monthly) before that, back to 1926.
 * **Real leveraged ETFs:** SSO (2×), UPRO (3×), SPXL (3×).
 
-Sources are Yahoo Finance (`yfinance`) and Robert Shiller's public dataset, all
-cached in `data/raw`. New tickers: edit one dictionary in `src/config.py`.
+Sources are Yahoo Finance (`yfinance`), Robert Shiller's dataset (long dividends),
+and the Ken French data library (1-month T-bill back to 1926), all cached in
+`data/raw`. New tickers: edit one dictionary in `src/config.py`.
 
 ## Limitations
 

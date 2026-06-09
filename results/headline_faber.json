@@ -27,14 +27,14 @@
     "buy_hold": {
       "cagr": 0.0995,
       "volatility": 0.1536,
-      "sharpe": 0.4443,
+      "sharpe": 0.5021,
       "max_drawdown": -0.8176
     },
     "timing": {
-      "cagr": 0.1124,
-      "volatility": 0.1083,
-      "sharpe": 0.6865,
-      "max_drawdown": -0.4298
+      "cagr": 0.1089,
+      "volatility": 0.1085,
+      "sharpe": 0.7385,
+      "max_drawdown": -0.4745
     },
     "faber_published": {
       "sp_compound": 0.0932,
@@ -48,29 +48,29 @@
     "buy_hold": {
       "cagr": 0.1014,
       "volatility": 0.1892,
-      "sharpe": 0.3953,
+      "sharpe": 0.4346,
       "max_drawdown": -0.8385,
       "calmar": 0.1209
     },
     "ma200_cash": {
-      "cagr": 0.1129,
+      "cagr": 0.1101,
       "volatility": 0.1263,
-      "sharpe": 0.5953,
-      "max_drawdown": -0.4621,
-      "calmar": 0.2442
+      "sharpe": 0.6349,
+      "max_drawdown": -0.4641,
+      "calmar": 0.2372
     }
   },
   "step2_leverage_index": {
-    "always_1.5x_cagr": 0.1046,
-    "always_2x_cagr": 0.1082,
-    "always_3x_cagr": 0.0843,
-    "always_4x_cagr": 0.0185
+    "always_1.5x_cagr": 0.1088,
+    "always_2x_cagr": 0.1165,
+    "always_3x_cagr": 0.1006,
+    "always_4x_cagr": 0.0415
   },
   "step3_surfaces": {
-    "sp_excess_drift": 0.074,
+    "sp_excess_drift": 0.0817,
     "sp_vol": 0.1892,
-    "kelly_leverage": 2.0669,
-    "breakeven_leverage": 3.1337,
+    "kelly_leverage": 2.2824,
+    "breakeven_leverage": 3.5649,
     "note": "iid model; real fat tails / vol-clustering lower the realised optimum"
   },
   "step3c_zero_return": {
@@ -111,67 +111,67 @@
   "step4_inverted": {
     "buy_hold": {
       "cagr": 0.1014,
-      "sharpe": 0.3953,
+      "sharpe": 0.4346,
       "max_drawdown": -0.8385,
       "calmar": 0.1209
     },
     "best_inverted_net": {
       "name": "Lev 4x ABOVE (net)",
-      "cagr": 0.1886,
-      "sharpe": 0.5199,
-      "max_drawdown": -0.9915,
-      "calmar": 0.1903
+      "cagr": 0.2067,
+      "sharpe": 0.5628,
+      "max_drawdown": -0.9881,
+      "calmar": 0.2091
     },
     "inverted_net_by_leverage": {
       "Lev 1.5x ABOVE (net)": {
-        "cagr": 0.1188,
-        "sharpe": 0.4252,
-        "max_drawdown": -0.8572,
-        "calmar": 0.1386
+        "cagr": 0.1216,
+        "sharpe": 0.4676,
+        "max_drawdown": -0.8573,
+        "calmar": 0.1418
       },
       "Lev 2x ABOVE (net)": {
-        "cagr": 0.1418,
-        "sharpe": 0.4662,
-        "max_drawdown": -0.8922,
-        "calmar": 0.159
+        "cagr": 0.1476,
+        "sharpe": 0.5095,
+        "max_drawdown": -0.8905,
+        "calmar": 0.1657
       },
       "Lev 3x ABOVE (net)": {
-        "cagr": 0.1748,
-        "sharpe": 0.504,
-        "max_drawdown": -0.9565,
-        "calmar": 0.1827
+        "cagr": 0.1866,
+        "sharpe": 0.5474,
+        "max_drawdown": -0.9551,
+        "calmar": 0.1954
       },
       "Lev 4x ABOVE (net)": {
-        "cagr": 0.1886,
-        "sharpe": 0.5199,
-        "max_drawdown": -0.9915,
-        "calmar": 0.1903
+        "cagr": 0.2067,
+        "sharpe": 0.5628,
+        "max_drawdown": -0.9881,
+        "calmar": 0.2091
       }
     },
     "below_net_by_leverage": {
       "Lev 1.5x BELOW (net)": {
-        "cagr": 0.079,
-        "sharpe": 0.2708,
-        "max_drawdown": -0.9431,
-        "calmar": 0.0838
+        "cagr": 0.0804,
+        "sharpe": 0.3064,
+        "max_drawdown": -0.9421,
+        "calmar": 0.0853
       },
       "Lev 2x BELOW (net)": {
-        "cagr": 0.0568,
-        "sharpe": 0.206,
-        "max_drawdown": -0.9818,
-        "calmar": 0.0579
+        "cagr": 0.0595,
+        "sharpe": 0.2384,
+        "max_drawdown": -0.981,
+        "calmar": 0.0606
       },
       "Lev 3x BELOW (net)": {
-        "cagr": -0.0024,
-        "sharpe": 0.1304,
-        "max_drawdown": -0.9987,
-        "calmar": -0.0024
+        "cagr": 0.0026,
+        "sharpe": 0.1587,
+        "max_drawdown": -0.9986,
+        "calmar": 0.0026
       },
       "Lev 4x BELOW (net)": {
-        "cagr": -0.0808,
-        "sharpe": 0.0891,
+        "cagr": -0.0739,
+        "sharpe": 0.1151,
         "max_drawdown": -1.0,
-        "calmar": -0.0808
+        "calmar": -0.0739
       }
     }
   },
@@ -243,61 +243,61 @@
         "grew_1dollar_to": 13020.9895,
         "cagr": 0.1014,
         "volatility": 0.1892,
-        "sharpe": 0.3953,
-        "sortino": 0.5601,
+        "sharpe": 0.4346,
+        "sortino": 0.617,
         "calmar": 0.1209,
         "max_drawdown": -0.8385,
         "info_ratio_vs_sp": NaN
       },
       "MA200 -> Cash": {
-        "grew_1dollar_to": 33089.5278,
-        "cagr": 0.1129,
+        "grew_1dollar_to": 25921.6321,
+        "cagr": 0.1101,
         "volatility": 0.1263,
-        "sharpe": 0.5953,
-        "sortino": 0.8408,
-        "calmar": 0.2442,
-        "max_drawdown": -0.4621,
-        "info_ratio_vs_sp": 0.0143
+        "sharpe": 0.6349,
+        "sortino": 0.899,
+        "calmar": 0.2372,
+        "max_drawdown": -0.4641,
+        "info_ratio_vs_sp": -0.0035
       },
       "Lev 1.5x above MA": {
-        "grew_1dollar_to": 55471.0134,
-        "cagr": 0.1188,
-        "volatility": 0.2363,
-        "sharpe": 0.4252,
-        "sortino": 0.6008,
-        "calmar": 0.1386,
-        "max_drawdown": -0.8572,
-        "info_ratio_vs_sp": 0.4331
+        "grew_1dollar_to": 70780.6697,
+        "cagr": 0.1216,
+        "volatility": 0.2364,
+        "sharpe": 0.4676,
+        "sortino": 0.6621,
+        "calmar": 0.1418,
+        "max_drawdown": -0.8573,
+        "info_ratio_vs_sp": 0.4728
       },
       "Lev 2x above MA": {
-        "grew_1dollar_to": 402862.9852,
-        "cagr": 0.1418,
+        "grew_1dollar_to": 655939.1908,
+        "cagr": 0.1476,
         "volatility": 0.2894,
-        "sharpe": 0.4662,
-        "sortino": 0.6581,
-        "calmar": 0.159,
-        "max_drawdown": -0.8922,
-        "info_ratio_vs_sp": 0.4893
+        "sharpe": 0.5095,
+        "sortino": 0.7208,
+        "calmar": 0.1657,
+        "max_drawdown": -0.8905,
+        "info_ratio_vs_sp": 0.5289
       },
       "Lev 3x above MA": {
-        "grew_1dollar_to": 6429402.6249,
-        "cagr": 0.1748,
+        "grew_1dollar_to": 17050453.7625,
+        "cagr": 0.1866,
         "volatility": 0.4044,
-        "sharpe": 0.504,
-        "sortino": 0.7109,
-        "calmar": 0.1827,
-        "max_drawdown": -0.9565,
-        "info_ratio_vs_sp": 0.5173
+        "sharpe": 0.5474,
+        "sortino": 0.7739,
+        "calmar": 0.1954,
+        "max_drawdown": -0.9551,
+        "info_ratio_vs_sp": 0.557
       },
       "Lev 4x above MA": {
-        "grew_1dollar_to": 20129416.0548,
-        "cagr": 0.1886,
-        "volatility": 0.5245,
-        "sharpe": 0.5199,
-        "sortino": 0.733,
-        "calmar": 0.1903,
-        "max_drawdown": -0.9915,
-        "info_ratio_vs_sp": 0.5267
+        "grew_1dollar_to": 87028072.8434,
+        "cagr": 0.2067,
+        "volatility": 0.5246,
+        "sharpe": 0.5628,
+        "sortino": 0.7955,
+        "calmar": 0.2091,
+        "max_drawdown": -0.9881,
+        "info_ratio_vs_sp": 0.5663
       }
     },
     "last 50y": {
@@ -493,61 +493,61 @@
         "grew_1dollar_to": 13020.9895,
         "cagr": 0.1014,
         "volatility": 0.1892,
-        "sharpe": 0.3953,
-        "sortino": 0.5601,
+        "sharpe": 0.4346,
+        "sortino": 0.617,
         "calmar": 0.1209,
         "max_drawdown": -0.8385,
         "info_ratio_vs_sp": NaN
       },
       "MA200 -> Cash": {
-        "grew_1dollar_to": 33089.5278,
-        "cagr": 0.1129,
+        "grew_1dollar_to": 25921.6321,
+        "cagr": 0.1101,
         "volatility": 0.1263,
-        "sharpe": 0.5953,
-        "sortino": 0.8408,
-        "calmar": 0.2442,
-        "max_drawdown": -0.4621,
-        "info_ratio_vs_sp": 0.0143
+        "sharpe": 0.6349,
+        "sortino": 0.899,
+        "calmar": 0.2372,
+        "max_drawdown": -0.4641,
+        "info_ratio_vs_sp": -0.0035
       },
       "Lev 1.5x above->cash": {
-        "grew_1dollar_to": 140933.6921,
+        "grew_1dollar_to": 140874.8398,
         "cagr": 0.1296,
         "volatility": 0.1894,
-        "sharpe": 0.5283,
-        "sortino": 0.7442,
-        "calmar": 0.2055,
-        "max_drawdown": -0.6305,
+        "sharpe": 0.568,
+        "sortino": 0.802,
+        "calmar": 0.2059,
+        "max_drawdown": -0.6292,
         "info_ratio_vs_sp": 0.1739
       },
       "Lev 2x above->cash": {
-        "grew_1dollar_to": 1023603.0666,
-        "cagr": 0.1528,
+        "grew_1dollar_to": 1305593.0736,
+        "cagr": 0.1557,
         "volatility": 0.2526,
-        "sharpe": 0.5326,
-        "sortino": 0.7503,
-        "calmar": 0.2036,
-        "max_drawdown": -0.7506,
-        "info_ratio_vs_sp": 0.3237
+        "sharpe": 0.5722,
+        "sortino": 0.8081,
+        "calmar": 0.2082,
+        "max_drawdown": -0.748,
+        "info_ratio_vs_sp": 0.3369
       },
       "Lev 3x above->cash": {
-        "grew_1dollar_to": 16337433.0798,
-        "cagr": 0.1861,
-        "volatility": 0.3788,
-        "sharpe": 0.5369,
-        "sortino": 0.7565,
-        "calmar": 0.2076,
-        "max_drawdown": -0.8965,
-        "info_ratio_vs_sp": 0.45
+        "grew_1dollar_to": 33940575.7728,
+        "cagr": 0.195,
+        "volatility": 0.3789,
+        "sharpe": 0.5765,
+        "sortino": 0.8143,
+        "calmar": 0.2172,
+        "max_drawdown": -0.8981,
+        "info_ratio_vs_sp": 0.4759
       },
       "Lev 4x above->cash": {
-        "grew_1dollar_to": 51152521.6958,
-        "cagr": 0.2001,
-        "volatility": 0.5051,
-        "sharpe": 0.539,
-        "sortino": 0.7596,
-        "calmar": 0.2046,
-        "max_drawdown": -0.9779,
-        "info_ratio_vs_sp": 0.4924
+        "grew_1dollar_to": 173246845.7563,
+        "cagr": 0.2152,
+        "volatility": 0.5052,
+        "sharpe": 0.5786,
+        "sortino": 0.8174,
+        "calmar": 0.2205,
+        "max_drawdown": -0.9761,
+        "info_ratio_vs_sp": 0.5233
       }
     },
     "last 50y": {
@@ -743,61 +743,61 @@
         "grew_1dollar_to": 13020.9895,
         "cagr": 0.1014,
         "volatility": 0.1892,
-        "sharpe": 0.3953,
-        "sortino": 0.5601,
+        "sharpe": 0.4346,
+        "sortino": 0.617,
         "calmar": 0.1209,
         "max_drawdown": -0.8385,
         "info_ratio_vs_sp": NaN
       },
       "MA200 -> Cash": {
-        "grew_1dollar_to": 33089.5278,
-        "cagr": 0.1129,
+        "grew_1dollar_to": 25921.6321,
+        "cagr": 0.1101,
         "volatility": 0.1263,
-        "sharpe": 0.5953,
-        "sortino": 0.8408,
-        "calmar": 0.2442,
-        "max_drawdown": -0.4621,
-        "info_ratio_vs_sp": 0.0143
+        "sharpe": 0.6349,
+        "sortino": 0.899,
+        "calmar": 0.2372,
+        "max_drawdown": -0.4641,
+        "info_ratio_vs_sp": -0.0035
       },
       "3-tier 1.5x": {
-        "grew_1dollar_to": 87949.0668,
-        "cagr": 0.1241,
+        "grew_1dollar_to": 83681.8119,
+        "cagr": 0.1235,
         "volatility": 0.1744,
-        "sharpe": 0.5303,
-        "sortino": 0.7461,
-        "calmar": 0.2129,
-        "max_drawdown": -0.5828,
-        "info_ratio_vs_sp": 0.1279
+        "sharpe": 0.5704,
+        "sortino": 0.8045,
+        "calmar": 0.2118,
+        "max_drawdown": -0.5831,
+        "info_ratio_vs_sp": 0.1245
       },
       "3-tier 2x": {
-        "grew_1dollar_to": 398471.453,
-        "cagr": 0.1417,
-        "volatility": 0.2251,
-        "sharpe": 0.5251,
-        "sortino": 0.7385,
-        "calmar": 0.2089,
-        "max_drawdown": -0.6782,
-        "info_ratio_vs_sp": 0.2538
+        "grew_1dollar_to": 460493.353,
+        "cagr": 0.1434,
+        "volatility": 0.2252,
+        "sharpe": 0.5651,
+        "sortino": 0.7967,
+        "calmar": 0.2116,
+        "max_drawdown": -0.6775,
+        "info_ratio_vs_sp": 0.2621
       },
       "3-tier 3x": {
-        "grew_1dollar_to": 3426219.063,
-        "cagr": 0.1672,
+        "grew_1dollar_to": 5842068.0236,
+        "cagr": 0.1736,
         "volatility": 0.3296,
-        "sharpe": 0.515,
-        "sortino": 0.7241,
-        "calmar": 0.1985,
-        "max_drawdown": -0.8423,
-        "info_ratio_vs_sp": 0.375
+        "sharpe": 0.5544,
+        "sortino": 0.7814,
+        "calmar": 0.2064,
+        "max_drawdown": -0.8413,
+        "info_ratio_vs_sp": 0.3963
       },
       "3-tier 4x": {
-        "grew_1dollar_to": 8987782.5609,
-        "cagr": 0.1788,
+        "grew_1dollar_to": 22624487.6832,
+        "cagr": 0.1901,
         "volatility": 0.4356,
-        "sharpe": 0.5079,
-        "sortino": 0.7141,
-        "calmar": 0.1895,
-        "max_drawdown": -0.944,
-        "info_ratio_vs_sp": 0.4201
+        "sharpe": 0.5469,
+        "sortino": 0.7708,
+        "calmar": 0.2021,
+        "max_drawdown": -0.9404,
+        "info_ratio_vs_sp": 0.4469
       }
     },
     "last 50y": {
@@ -992,91 +992,91 @@
       "grew_1dollar_to": 13020.9895,
       "cagr": 0.1014,
       "volatility": 0.1892,
-      "sharpe": 0.3953,
-      "sortino": 0.5601,
+      "sharpe": 0.4346,
+      "sortino": 0.617,
       "calmar": 0.1209,
       "max_drawdown": -0.8385,
       "info_ratio_vs_sp": NaN
     },
     "Always 1.5x (constant)": {
-      "grew_1dollar_to": 17377.6766,
-      "cagr": 0.1046,
+      "grew_1dollar_to": 25037.4046,
+      "cagr": 0.1088,
       "volatility": 0.2838,
-      "sharpe": 0.3532,
-      "sortino": 0.4996,
-      "calmar": 0.1102,
-      "max_drawdown": -0.9495,
-      "info_ratio_vs_sp": 0.269
+      "sharpe": 0.3925,
+      "sortino": 0.5563,
+      "calmar": 0.1147,
+      "max_drawdown": -0.9485,
+      "info_ratio_vs_sp": 0.3083
     },
     "Lev 1.5x above MA": {
-      "grew_1dollar_to": 55471.0134,
-      "cagr": 0.1188,
-      "volatility": 0.2363,
-      "sharpe": 0.4252,
-      "sortino": 0.6008,
-      "calmar": 0.1386,
-      "max_drawdown": -0.8572,
-      "info_ratio_vs_sp": 0.4331
+      "grew_1dollar_to": 70780.6697,
+      "cagr": 0.1216,
+      "volatility": 0.2364,
+      "sharpe": 0.4676,
+      "sortino": 0.6621,
+      "calmar": 0.1418,
+      "max_drawdown": -0.8573,
+      "info_ratio_vs_sp": 0.4728
     },
     "Always 2x (constant)": {
-      "grew_1dollar_to": 23865.9108,
-      "cagr": 0.1082,
+      "grew_1dollar_to": 49549.3045,
+      "cagr": 0.1165,
       "volatility": 0.3784,
-      "sharpe": 0.3571,
-      "sortino": 0.5052,
-      "calmar": 0.1098,
-      "max_drawdown": -0.9857,
-      "info_ratio_vs_sp": 0.3189
+      "sharpe": 0.3964,
+      "sortino": 0.562,
+      "calmar": 0.1183,
+      "max_drawdown": -0.9851,
+      "info_ratio_vs_sp": 0.3583
     },
     "Lev 2x above MA": {
-      "grew_1dollar_to": 402862.9852,
-      "cagr": 0.1418,
+      "grew_1dollar_to": 655939.1908,
+      "cagr": 0.1476,
       "volatility": 0.2894,
-      "sharpe": 0.4662,
-      "sortino": 0.6581,
-      "calmar": 0.159,
-      "max_drawdown": -0.8922,
-      "info_ratio_vs_sp": 0.4893
+      "sharpe": 0.5095,
+      "sortino": 0.7208,
+      "calmar": 0.1657,
+      "max_drawdown": -0.8905,
+      "info_ratio_vs_sp": 0.5289
     },
     "Always 3x (constant)": {
-      "grew_1dollar_to": 2802.6137,
-      "cagr": 0.0843,
+      "grew_1dollar_to": 12093.7876,
+      "cagr": 0.1006,
       "volatility": 0.5677,
-      "sharpe": 0.361,
-      "sortino": 0.5109,
-      "calmar": 0.0843,
-      "max_drawdown": -0.9995,
-      "info_ratio_vs_sp": 0.3439
+      "sharpe": 0.4004,
+      "sortino": 0.5676,
+      "calmar": 0.1006,
+      "max_drawdown": -0.9992,
+      "info_ratio_vs_sp": 0.3833
     },
     "Lev 3x above MA": {
-      "grew_1dollar_to": 6429402.6249,
-      "cagr": 0.1748,
+      "grew_1dollar_to": 17050453.7625,
+      "cagr": 0.1866,
       "volatility": 0.4044,
-      "sharpe": 0.504,
-      "sortino": 0.7109,
-      "calmar": 0.1827,
-      "max_drawdown": -0.9565,
-      "info_ratio_vs_sp": 0.5173
+      "sharpe": 0.5474,
+      "sortino": 0.7739,
+      "calmar": 0.1954,
+      "max_drawdown": -0.9551,
+      "info_ratio_vs_sp": 0.557
     },
     "Always 4x (constant)": {
-      "grew_1dollar_to": 6.0337,
-      "cagr": 0.0185,
+      "grew_1dollar_to": 54.2338,
+      "cagr": 0.0415,
       "volatility": 0.7569,
-      "sharpe": 0.363,
-      "sortino": 0.5137,
-      "calmar": 0.0185,
+      "sharpe": 0.4023,
+      "sortino": 0.5705,
+      "calmar": 0.0415,
       "max_drawdown": -1.0,
-      "info_ratio_vs_sp": 0.3522
+      "info_ratio_vs_sp": 0.3916
     },
     "Lev 4x above MA": {
-      "grew_1dollar_to": 20129416.0548,
-      "cagr": 0.1886,
-      "volatility": 0.5245,
-      "sharpe": 0.5199,
-      "sortino": 0.733,
-      "calmar": 0.1903,
-      "max_drawdown": -0.9915,
-      "info_ratio_vs_sp": 0.5267
+      "grew_1dollar_to": 87028072.8434,
+      "cagr": 0.2067,
+      "volatility": 0.5246,
+      "sharpe": 0.5628,
+      "sortino": 0.7955,
+      "calmar": 0.2091,
+      "max_drawdown": -0.9881,
+      "info_ratio_vs_sp": 0.5663
     }
   }
 }

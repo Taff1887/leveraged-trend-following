@@ -7,9 +7,12 @@ equivalent of Faber's 10-month rule). Tested as far back as the data allows.*
 (Shiller) for the Faber replication; a daily total-return series from 1928 for
 everything else — real `^SP500TR` from 1988, and before that `^GSPC` price plus
 the Shiller dividend yield (this reconstruction tracks the real series with
-0.50%/yr error and 0.9996 correlation over 1988–2026). Cash earns the 13-week
-T-bill (`^IRX`; a 3.5% constant before 1960). The trend signal is lagged one day,
-so nothing uses information we could not have had.
+0.50%/yr error and 0.9996 correlation over 1988–2026). Cash and the financing of
+leverage use **real T-bill rates** throughout: `^IRX` (13-week T-bill) from 1960,
+and the Ken French / Ibbotson **1-month T-bill** (monthly) before that, back to
+1926 — so the risk-free covers the entire 1928+ daily sample (it averaged ~0% in
+the 1930s–40s, ~1–3% in the 1950s, and ~3.2% over the full sample). The trend
+signal is lagged one day, so nothing uses information we could not have had.
 
 **How the ratios are computed** (all from *daily* returns, then annualized):
 * **CAGR** — geometric: the constant yearly rate that turns the start wealth into
@@ -18,10 +21,10 @@ so nothing uses information we could not have had.
 * **Sharpe** = annualized **mean** daily excess return over the T-bill ÷ volatility.
   It uses the *arithmetic mean*, **not** the CAGR. For high-volatility strategies
   the arithmetic mean sits far above the CAGR (by ≈ ½·vol², the variance drag), so
-  Sharpe will **not** equal (CAGR − rf)/vol — e.g. the 4× rule's arithmetic mean is
-  ~38% vs an 18.9% CAGR, giving Sharpe (38% − 4%)/52% ≈ 0.52, not (18.9% − 4%)/52%
-  ≈ 0.28. This is the standard definition and is correct; the volatility column lets
-  you check it directly from the arithmetic mean.
+  Sharpe will **not** equal (CAGR − rf)/vol — e.g. the 4×-above rule's arithmetic
+  mean is ~35% vs a 20.7% CAGR, giving Sharpe ≈ 0.56, not (20.7% − 3%)/52% ≈ 0.34.
+  This is the standard definition and is correct; the volatility column lets you
+  check it directly from the arithmetic mean.
 * **Sortino** — same as Sharpe but the denominator counts only downside deviation
   (shortfalls below zero, averaged over *all* days).
 * **Calmar** = CAGR ÷ |max drawdown|.
@@ -41,13 +44,14 @@ use that, then its daily twin (the 200-day SMA).
 
 | | S&P 500 buy & hold | 10-month timing → cash |
 |---|---|---|
-| CAGR | 9.95% | 11.24% |
+| CAGR | 9.95% | 10.89% |
 | Volatility | 15.4% | 10.8% |
-| Sharpe | 0.44 | **0.69** |
-| Max drawdown | −81.8% | **−43.0%** |
+| Sharpe | 0.50 | **0.74** |
+| Max drawdown | −81.8% | **−47.5%** |
 
-(Faber's published drawdowns are −83.66% → −42.24%; we reproduce them to within a
-point.)
+(Faber's published drawdowns are −83.66% → −42.24%; we reproduce the same
+qualitative halving — small differences come from extending the sample to 2026 and
+using real, near-zero 1930s–40s cash rates.)
 
 ![Buy & hold vs 10-month timing, 1901+](../charts/F0_faber_replication.png)
 
@@ -55,11 +59,11 @@ point.)
 
 | | Buy & Hold 1× | MA200 → Cash |
 |---|---|---|
-| CAGR | 10.14% | 11.29% |
+| CAGR | 10.14% | 11.01% |
 | Volatility | 18.9% | 12.6% |
-| Sharpe | 0.40 | **0.60** |
-| Sortino | 0.56 | **0.84** |
-| Max drawdown | −83.9% | **−46.2%** |
+| Sharpe | 0.43 | **0.63** |
+| Sortino | 0.62 | **0.90** |
+| Max drawdown | −83.9% | **−46.4%** |
 | Calmar | 0.12 | **0.24** |
 
 ![Buy & hold vs 200-day MA](../charts/F1_baseline_equity.png)
@@ -89,15 +93,18 @@ Holding **constant** daily leverage on the index, net of costs:
 | | CAGR | Grew $1 to |
 |---|---|---|
 | 1× (buy & hold) | 10.14% | $13,021 |
-| Always 1.5× | 10.46% | $17,378 |
-| Always 2.5× | 10.15% | $13,110 |
-| Always 3× | **8.43%** | $2,803 |
+| Always 1.5× | 10.93% | $25,037 |
+| Always 2× | 11.59% | $49,549 |
+| Always 3× | 10.09% | $12,094 |
+| Always 4× | **4.20%** | **$54** |
 
 ![Constant leverage on the index](../charts/F2_leverage_on_index.png)
 
-Constant leverage barely helps at 1.5× and *loses ground* by 3× — across a full
-century (including 1929 and 2008), constant 3× ends below plain buy & hold and far
-below the moving-average rule.
+Constant leverage helps a little up to ~2×, then **runs out of road**: constant 3×
+only matches buy & hold and constant 4× collapses to $54 (CAGR 4.2%) — across a
+full century (including the 1929, 1987 and 2008 crashes) the volatility drag and
+deep drawdowns overwhelm the extra exposure. Section 6 shows that *switching* the
+leverage with the trend fixes this.
 
 ---
 
@@ -167,12 +174,12 @@ years (net of costs; the volatility column lets you reproduce the Sharpe):
 
 | Horizon | Strategy | Grew $1 to | CAGR | Vol | Sharpe | Sortino | Calmar | Max DD | IR vs S&P |
 |---|---|---|---|---|---|---|---|---|---|
-| full (1928+) | Buy & Hold 1x | $13,021 | 10.1% | 18.9% | 0.40 | 0.56 | 0.12 | -83.9% | — |
-| full (1928+) | MA200 -> Cash | $33,090 | 11.3% | 12.6% | 0.60 | 0.84 | 0.24 | -46.2% | 0.01 |
-| full (1928+) | Lev 1.5x above MA | $55,471 | 11.9% | 23.6% | 0.43 | 0.60 | 0.14 | -85.7% | 0.43 |
-| full (1928+) | Lev 2x above MA | $402,863 | 14.2% | 28.9% | 0.47 | 0.66 | 0.16 | -89.2% | 0.49 |
-| full (1928+) | Lev 3x above MA | $6,429,403 | 17.5% | 40.4% | 0.50 | 0.71 | 0.18 | -95.7% | 0.52 |
-| full (1928+) | Lev 4x above MA | $20,129,416 | 18.9% | 52.5% | 0.52 | 0.73 | 0.19 | -99.2% | 0.53 |
+| full (1928+) | Buy & Hold 1x | $13,021 | 10.1% | 18.9% | 0.43 | 0.62 | 0.12 | -83.9% | — |
+| full (1928+) | MA200 -> Cash | $25,922 | 11.0% | 12.6% | 0.63 | 0.90 | 0.24 | -46.4% | 0.00 |
+| full (1928+) | Lev 1.5x above MA | $70,781 | 12.2% | 23.6% | 0.47 | 0.66 | 0.14 | -85.7% | 0.47 |
+| full (1928+) | Lev 2x above MA | $655,939 | 14.8% | 28.9% | 0.51 | 0.72 | 0.17 | -89.0% | 0.53 |
+| full (1928+) | Lev 3x above MA | $17,050,454 | 18.7% | 40.4% | 0.55 | 0.77 | 0.20 | -95.5% | 0.56 |
+| full (1928+) | Lev 4x above MA | $87,028,073 | 20.7% | 52.5% | 0.56 | 0.80 | 0.21 | -98.8% | 0.57 |
 | last 50y | Buy & Hold 1x | $256.7 | 11.7% | 17.4% | 0.49 | 0.69 | 0.21 | -55.3% | — |
 | last 50y | MA200 -> Cash | $189.4 | 11.1% | 11.7% | 0.60 | 0.85 | 0.54 | -20.6% | -0.11 |
 | last 50y | Lev 1.5x above MA | $567.3 | 13.5% | 21.8% | 0.50 | 0.70 | 0.23 | -59.0% | 0.42 |
@@ -201,7 +208,8 @@ years (net of costs; the volatility column lets you reproduce the Sharpe):
 and Calmar at every horizon, and matches its Sharpe in recent windows (last 15y:
 Sharpe ≈ 0.81 at 2–3×, same as buy & hold, but far higher CAGR). The
 **information ratio vs the S&P is strongly positive and rises with leverage**
-(0.43 → 0.73), so the leverage is adding genuine benchmark-relative return — note
+(0.47 → 0.57 over the full century, up to 0.73 over the last 15 years), so the
+leverage is adding genuine benchmark-relative return — note
 that plain MA→cash has a **negative** IR in recent windows (−0.11 to −0.32): it
 has *lagged* the index since the bull began. The cost is drawdown, which deepens
 with leverage (−86% at 1.5× to −99% at 4× over the full century).
@@ -215,24 +223,26 @@ each level *constantly* (dotted) versus only **above the MA** (solid), 1928–20
 
 | Strategy | Grew $1 to | CAGR | Vol | Sharpe | Sortino | Max DD | IR vs S&P |
 |---|---|---|---|---|---|---|---|
-| Buy & Hold 1x | $13,021 | 10.1% | 18.9% | 0.40 | 0.56 | -83.9% | — |
-| Always 1.5x (constant) | $17,378 | 10.5% | 28.4% | 0.35 | 0.50 | -94.9% | 0.27 |
-| **Lev 1.5x above MA** | $55,471 | 11.9% | 23.6% | 0.43 | 0.60 | -85.7% | 0.43 |
-| Always 2x (constant) | $23,866 | 10.8% | 37.8% | 0.36 | 0.51 | -98.6% | 0.32 |
-| **Lev 2x above MA** | $402,863 | 14.2% | 28.9% | 0.47 | 0.66 | -89.2% | 0.49 |
-| Always 3x (constant) | $2,803 | 8.4% | 56.8% | 0.36 | 0.51 | -100.0% | 0.34 |
-| **Lev 3x above MA** | $6,429,403 | 17.5% | 40.4% | 0.50 | 0.71 | -95.7% | 0.52 |
-| Always 4x (constant) | $6.03 | 1.8% | 75.7% | 0.36 | 0.51 | -100.0% | 0.35 |
-| **Lev 4x above MA** | $20,129,416 | 18.9% | 52.5% | 0.52 | 0.73 | -99.2% | 0.53 |
+| Buy & Hold 1x | $13,021 | 10.1% | 18.9% | 0.43 | 0.62 | -83.9% | — |
+| Always 1.5x (constant) | $25,037 | 10.9% | 28.4% | 0.39 | 0.56 | -94.9% | 0.31 |
+| **Lev 1.5x above MA** | $70,781 | 12.2% | 23.6% | 0.47 | 0.66 | -85.7% | 0.47 |
+| Always 2x (constant) | $49,549 | 11.6% | 37.8% | 0.40 | 0.56 | -98.5% | 0.36 |
+| **Lev 2x above MA** | $655,939 | 14.8% | 28.9% | 0.51 | 0.72 | -89.0% | 0.53 |
+| Always 3x (constant) | $12,094 | 10.1% | 56.8% | 0.40 | 0.57 | -99.9% | 0.38 |
+| **Lev 3x above MA** | $17,050,454 | 18.7% | 40.4% | 0.55 | 0.77 | -95.5% | 0.56 |
+| Always 4x (constant) | $54 | 4.2% | 75.7% | 0.40 | 0.57 | -100.0% | 0.39 |
+| **Lev 4x above MA** | $87,028,073 | 20.7% | 52.5% | 0.56 | 0.80 | -98.8% | 0.57 |
 
 ![Constant vs MA-switched leverage](../charts/F12_constant_vs_switch.png)
 
-The switch adds enormous value: at every level the MA-switched version has higher
+The switch adds enormous value at every level: the MA-switched version has higher
 CAGR, Sharpe **and** a shallower drawdown than holding the same leverage all the
-time. Constant 4× grew $1 to just **$6** over a century (CAGR 1.8%) and constant 3×
-to **$2,803** (below buy & hold) — while switched 4× grew $1 to **$20 million**.
-Constant leverage simply piles on volatility (Sharpe stuck at 0.36) for almost no
-extra compound return; the trend filter is what makes leverage pay.
+time. Constant leverage runs out of road as it rises — constant 3× merely *matches*
+buy & hold ($12,094 vs $13,021) despite triple the volatility, and constant 4×
+**collapses to $54** (CAGR 4.2%, a −100% interim drawdown). The switched versions
+grow $1 to $656k (2×) and **$87 million** (4×). Constant leverage piles on
+volatility (Sharpe stuck near 0.40) for little extra compound return; the trend
+filter is what makes leverage pay.
 
 ---
 
@@ -243,12 +253,12 @@ full / 50 / 30 / 15-year horizons (net):
 
 | Horizon | Strategy | Grew $1 to | CAGR | Vol | Sharpe | Sortino | Calmar | Max DD | IR vs S&P |
 |---|---|---|---|---|---|---|---|---|---|
-| full (1928+) | Buy & Hold 1x | $13,021 | 10.1% | 18.9% | 0.40 | 0.56 | 0.12 | -83.9% | — |
-| full (1928+) | MA200 -> Cash | $33,090 | 11.3% | 12.6% | 0.60 | 0.84 | 0.24 | -46.2% | 0.01 |
-| full (1928+) | Lev 1.5x above->cash | $140,934 | 13.0% | 18.9% | 0.53 | 0.74 | 0.21 | -63.0% | 0.17 |
-| full (1928+) | Lev 2x above->cash | $1,023,603 | 15.3% | 25.3% | 0.53 | 0.75 | 0.20 | -75.1% | 0.32 |
-| full (1928+) | Lev 3x above->cash | $16,337,433 | 18.6% | 37.9% | 0.54 | 0.76 | 0.21 | -89.7% | 0.45 |
-| full (1928+) | Lev 4x above->cash | $51,152,522 | 20.0% | 50.5% | 0.54 | 0.76 | 0.20 | -97.8% | 0.49 |
+| full (1928+) | Buy & Hold 1x | $13,021 | 10.1% | 18.9% | 0.43 | 0.62 | 0.12 | -83.9% | — |
+| full (1928+) | MA200 -> Cash | $25,922 | 11.0% | 12.6% | 0.63 | 0.90 | 0.24 | -46.4% | 0.00 |
+| full (1928+) | Lev 1.5x above->cash | $140,875 | 13.0% | 18.9% | 0.57 | 0.80 | 0.21 | -62.9% | 0.17 |
+| full (1928+) | Lev 2x above->cash | $1,305,593 | 15.6% | 25.3% | 0.57 | 0.81 | 0.21 | -74.8% | 0.34 |
+| full (1928+) | Lev 3x above->cash | $33,940,576 | 19.5% | 37.9% | 0.58 | 0.81 | 0.22 | -89.8% | 0.48 |
+| full (1928+) | Lev 4x above->cash | $173,246,846 | 21.5% | 50.5% | 0.58 | 0.82 | 0.22 | -97.6% | 0.52 |
 | last 50y | Lev 2x above->cash | $988.6 | 14.8% | 23.4% | 0.53 | 0.74 | 0.32 | -46.9% | 0.23 |
 | last 50y | Lev 4x above->cash | $9,101 | 20.0% | 46.9% | 0.54 | 0.75 | 0.25 | -79.3% | 0.45 |
 | last 30y | Lev 2x above->cash | $39.1 | 13.0% | 24.2% | 0.54 | 0.74 | 0.28 | -46.9% | 0.18 |
@@ -279,11 +289,11 @@ above both, **plain 1× S&P** on a mild pullback (below the 3-month but above th
 
 | Horizon | Strategy | Grew $1 to | CAGR | Vol | Sharpe | Sortino | Calmar | Max DD | IR vs S&P |
 |---|---|---|---|---|---|---|---|---|---|
-| full (1928+) | MA200 -> Cash | $33,090 | 11.3% | 12.6% | 0.60 | 0.84 | 0.24 | -46.2% | 0.01 |
-| full (1928+) | 3-tier 1.5x | $87,949 | 12.4% | 17.4% | 0.53 | 0.75 | 0.21 | -58.3% | 0.13 |
-| full (1928+) | 3-tier 2x | $398,471 | 14.2% | 22.5% | 0.53 | 0.74 | 0.21 | -67.8% | 0.25 |
-| full (1928+) | 3-tier 3x | $3,426,219 | 16.7% | 33.0% | 0.52 | 0.72 | 0.20 | -84.2% | 0.38 |
-| full (1928+) | 3-tier 4x | $8,987,783 | 17.9% | 43.6% | 0.51 | 0.71 | 0.19 | -94.4% | 0.42 |
+| full (1928+) | MA200 -> Cash | $25,922 | 11.0% | 12.6% | 0.63 | 0.90 | 0.24 | -46.4% | 0.00 |
+| full (1928+) | 3-tier 1.5x | $83,682 | 12.4% | 17.4% | 0.57 | 0.80 | 0.21 | -58.3% | 0.12 |
+| full (1928+) | 3-tier 2x | $460,493 | 14.3% | 22.5% | 0.57 | 0.80 | 0.21 | -67.8% | 0.26 |
+| full (1928+) | 3-tier 3x | $5,842,068 | 17.4% | 33.0% | 0.55 | 0.78 | 0.21 | -84.1% | 0.40 |
+| full (1928+) | 3-tier 4x | $22,624,488 | 19.0% | 43.6% | 0.55 | 0.77 | 0.20 | -94.0% | 0.45 |
 | last 30y | 3-tier 2x | $18.4 | 10.2% | 21.4% | 0.46 | 0.63 | 0.21 | -49.3% | 0.02 |
 | last 15y | Buy & Hold 1x | $7.68 | 14.6% | 17.3% | 0.79 | 1.11 | 0.43 | -33.8% | — |
 | last 15y | 3-tier 2x | $5.95 | 12.7% | 20.9% | 0.60 | 0.82 | 0.39 | -32.3% | -0.06 |

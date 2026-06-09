@@ -47,10 +47,18 @@ from . import data_loader as dl
 SHILLER_URL = "http://www.econ.yale.edu/~shiller/data/ie_data.xls"
 SHILLER_CACHE = config.RAW_DATA_DIR / "shiller_ie_data.xls"
 
-# Constant T-bill proxy for the era before ^IRX begins (1960). Documented and
-# only used when no real short-rate data exists; cash is held a minority of the
-# time so this has a small effect on the headline comparison.
-PRE1960_TBILL_ANNUAL = 0.035
+# Ken French data library: the 1-month US T-bill return (column "RF"), monthly
+# from July 1926 (sourced from Ibbotson Associates). This is the standard
+# academic risk-free and gives us REAL T-bill rates back past our 1928 daily
+# start, so we no longer need a constant placeholder for the pre-1960 era.
+FF_URL = ("https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/"
+          "F-F_Research_Data_Factors_CSV.zip")
+FF_CACHE = config.RAW_DATA_DIR / "ff_factors.zip"
+
+# Last-resort constant, only used before the Ken French series begins (1926-07)
+# or if the download is unavailable. Our daily history starts in 1928, so this is
+# essentially never hit for the daily analysis.
+PRE1960_TBILL_ANNUAL = 0.02
 
 
 # ---------------------------------------------------------------------------
@@ -242,33 +250,96 @@ def validate_reconstruction() -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Ken French 1-month T-bill (real risk-free back to 1926)
+# ---------------------------------------------------------------------------
+def load_ff_riskfree() -> pd.Series:
+    """Monthly 1-month T-bill RETURN (decimal), month-end indexed, from 1926-07.
+
+    Parsed from the Ken French ``F-F_Research_Data_Factors`` file (RF column,
+    quoted in percent-per-month). Returns an empty Series if unavailable.
+    """
+    import io
+    import re
+    import zipfile
+
+    try:
+        if FF_CACHE.exists():
+            data = FF_CACHE.read_bytes()
+        else:
+            req = urllib.request.Request(FF_URL, headers={"User-Agent": "Mozilla/5.0"})
+            data = urllib.request.urlopen(req, timeout=60).read()
+            FF_CACHE.write_bytes(data)
+        z = zipfile.ZipFile(io.BytesIO(data))
+        txt = z.read(z.namelist()[0]).decode("latin-1")
+    except Exception:
+        return pd.Series(dtype=float)
+
+    rows = {}
+    for line in txt.splitlines():
+        line = line.strip()
+        if not re.match(r"^\d{6}\s*,", line):   # monthly rows are 'YYYYMM,...'
+            continue
+        parts = [p.strip() for p in line.split(",")]
+        ym = parts[0]
+        try:
+            rf = float(parts[4]) / 100.0        # RF is the 5th column, percent/month
+        except (IndexError, ValueError):
+            continue
+        y, mo = int(ym[:4]), int(ym[4:6])
+        if 1 <= mo <= 12:
+            ts = pd.Timestamp(year=y, month=mo, day=1) + pd.offsets.MonthEnd(0)
+            rows[ts] = rf
+    return pd.Series(rows).sort_index().rename("ff_rf_monthly")
+
+
+# ---------------------------------------------------------------------------
 # Long risk-free (T-bill) series
 # ---------------------------------------------------------------------------
 def long_risk_free_daily(index: pd.Index) -> pd.Series:
-    """Daily risk-free return aligned to ``index``.
+    """Daily risk-free return aligned to ``index``, using REAL T-bill rates:
 
-    Real ^IRX (13-week T-bill) where available (1960+); a documented constant
-    (``PRE1960_TBILL_ANNUAL``) before that.
+      * 1960 onward : ^IRX (13-week T-bill), converted to a daily rate.
+      * before 1960 : Ken French 1-month T-bill (Ibbotson), the monthly return
+                      spread evenly across that month's trading days.
+      * before 1926 : the small ``PRE1960_TBILL_ANNUAL`` constant (rarely hit;
+                      our daily history starts in 1928).
     """
-    rf = dl.get_risk_free_daily(index)  # ^IRX-based, 0 before it starts
+    rf = dl.get_risk_free_daily(index).copy()    # ^IRX-based, 0 before it starts
     irx = dl.get_level_series(config.RISK_FREE_TICKER)
-    pre_start = irx.index.min() if irx is not None else pd.Timestamp("1960-01-01")
-
+    irx_start = irx.index.min() if irx is not None else pd.Timestamp("1960-01-01")
     const_daily = (1.0 + PRE1960_TBILL_ANNUAL) ** (1.0 / config.TRADING_DAYS_PER_YEAR) - 1.0
-    rf = rf.copy()
-    rf[rf.index < pre_start] = const_daily
+
+    pre = index[index < irx_start]
+    if len(pre):
+        ff = load_ff_riskfree()
+        if len(ff):
+            ff_p = pd.Series(ff.values, index=ff.index.to_period("M"))
+            pm = pre.to_period("M")
+            # number of in-sample trading days per pre-1960 month
+            days = pd.Series(1, index=pm).groupby(level=0).transform("sum")
+            monthly = pd.Series(ff_p.reindex(pm).values, index=pre)
+            daily_pre = (monthly.values / days.values)
+            rf.loc[pre] = daily_pre
+        else:
+            rf.loc[pre] = const_daily
+        rf.loc[pre] = rf.loc[pre].fillna(const_daily)
     return rf.rename("rf_daily")
 
 
 def long_risk_free_monthly(index: pd.Index) -> pd.Series:
-    """Monthly risk-free return aligned to a month-end ``index``."""
-    irx = dl.get_level_series(config.RISK_FREE_TICKER)
+    """Monthly risk-free return aligned to month-end ``index``: ^IRX (1960+),
+    Ken French 1-month T-bill (1926-1960), and a small constant before 1926."""
     const_monthly = (1.0 + PRE1960_TBILL_ANNUAL) ** (1.0 / 12.0) - 1.0
-    if irx is None:
-        return pd.Series(const_monthly, index=index)
-    annual = (irx / 100.0).clip(lower=-0.99)
-    monthly = (1.0 + annual) ** (1.0 / 12.0) - 1.0
-    monthly = monthly.resample("ME").last()
-    out = monthly.reindex(index).ffill()
-    out[out.index < irx.index.min()] = const_monthly
+    irx = dl.get_level_series(config.RISK_FREE_TICKER)
+    out = pd.Series(np.nan, index=index)
+
+    ff = load_ff_riskfree()
+    if len(ff):
+        out = ff.reindex(index)               # real monthly T-bill where available
+    if irx is not None:
+        annual = (irx / 100.0).clip(lower=-0.99)
+        irx_m = ((1.0 + annual) ** (1.0 / 12.0) - 1.0).resample("ME").last()
+        irx_m = irx_m.reindex(index).ffill()
+        mask = index >= irx.index.min()        # ^IRX takes over from 1960
+        out[mask] = irx_m[mask]
     return out.fillna(const_monthly).rename("rf_monthly")
