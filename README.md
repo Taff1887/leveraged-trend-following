@@ -149,19 +149,6 @@ leverage, add it modestly (~1.5–2×) **above** the trend, never below it. Long
 back to 1928 is real `^SP500TR` (1988+) spliced with a Shiller-dividend
 reconstruction (validated at 0.5%/yr tracking error vs the real series).
 
-## How the strategy works (no look-ahead)
-
-For each day *t*:
-
-1. Compute the moving average from prices **up to yesterday** (`t−1`).
-2. If yesterday's price was **above** its MA → today's exposure = **1×**.
-   If **below** → today's exposure = **L×**.
-3. `strategy_return[t] = exposure[t] × sp500_return[t]`, minus optional costs.
-4. Compound daily — so **volatility decay is captured automatically**.
-
-The signal is lagged one day everywhere, so we never trade on information we
-could not have had.
-
 ## Repository layout
 
 ```
