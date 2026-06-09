@@ -627,6 +627,24 @@ def nb09():
            "leverage is around **2×**. But this assumes well-behaved normal "
            "returns — real markets have fat tails and volatility clustering, which "
            "punish leverage more, so the *realised* optimum is lower."),
+        md("### Which leverage *matches* the S&P? (break-even leverage map)\n\n"
+           "Plotting volatility against trend, the **break-even leverage** "
+           "$L=2\\mu/\\sigma^2-1$ is the level whose compound return exactly ties 1×. "
+           "On/below the labelled contour, leverage matches or beats 1×; **above it, "
+           "volatility decay makes leverage lose.**"),
+        code("dgrid = np.linspace(0, 0.15, 76); vgrid = np.linspace(0.05, 0.60, 76)\n"
+             "Dg, Vg = np.meshgrid(dgrid, vgrid)\n"
+             "Lbe = np.clip(2*Dg/Vg**2 - 1, 0, 5)\n"
+             "fig, ax = plt.subplots(figsize=(10,6))\n"
+             "cf = ax.contourf(Dg*100, Vg*100, Lbe, levels=np.linspace(0,5,26), cmap='RdYlGn', extend='max')\n"
+             "cs = ax.contour(Dg*100, Vg*100, Lbe, levels=[1,1.25,1.5,1.75,2,2.5,3], colors='k', linewidths=1)\n"
+             "ax.clabel(cs, fmt=lambda x: f'{x:g}x', fontsize=8)\n"
+             "ax.contour(Dg*100, Vg*100, Lbe, levels=[1.0], colors='k', linewidths=2.5)\n"
+             "ax.plot(mu_ex*100, sigma*100, 'k*', ms=18, mec='white', zorder=5)\n"
+             "fig.colorbar(cf, ax=ax, label='break-even daily leverage (ties 1x)')\n"
+             "ax.set_xlabel('annual excess drift (%)'); ax.set_ylabel('annual volatility (%)')\n"
+             "ax.set_title('Break-even leverage: on/below the contour leverage matches 1x; above it, decay wins')\n"
+             "plt.show()"),
         md("## Step 4 — The inverted strategy: leverage ABOVE the MA, 1× below\n\n"
            "Now the payoff. We leverage only in the calm, above-trend regime and "
            "drop to 1× in the volatile, below-trend regime — and we charge "
@@ -652,6 +670,15 @@ def nb09():
              "alld = {'Buy & Hold 1x': bh.net_returns, 'MA200 -> Cash': ma.net_returns}; alld.update(dd)\n"
              "fig = pl.plot_drawdowns(alld, 'Drawdowns: leverage ABOVE the MA vs baselines',\n"
              "    'F4_inverted_drawdowns.png'); plt.show()"),
+        md("### Closer look — 2000 onwards\n\n"
+           "The full-history drawdowns are dominated by 1929/1987 (single days a "
+           "daily 3× can't survive). Restricting to 2000+ gives a more investable "
+           "picture — same ranking, far more survivable drawdowns."),
+        code("net_ret = {'Buy & Hold 1x': bh.net_returns, 'MA200 -> Cash': ma.net_returns}\n"
+             "net_ret.update(dd); net_ret['Lev 2x BELOW (net) [original]'] = below.net_returns\n"
+             "since = lambda r: r[r.index >= pd.Timestamp('2000-01-01')]\n"
+             "rows2000 = [mx.summarize(since(r), rf_d, name) for name, r in net_ret.items()]\n"
+             "pd.DataFrame(rows2000)[['name','cagr','volatility','sharpe','max_drawdown','calmar']]"),
         md("## The verdict\n\n"
            "1. **Inverting the rule works.** Leverage *above* the MA at 2× delivers "
            "roughly **double the Sharpe and triple the CAGR** of the original "

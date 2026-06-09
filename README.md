@@ -77,21 +77,48 @@ Part II (run `python run_faber_leverage.py`) does the analysis Faber's way —
 −83.7%→−42.2% drawdown reduction to within a point) — and tests the **inverted**
 rule on daily data back to **1928**: *leverage above the trend, 1× below.*
 
-| 1928–2026, net of costs | CAGR | Sharpe | Max DD | Calmar |
+**Full history — 1928–2026, net of costs:**
+
+| Strategy | CAGR | Sharpe | Max DD | Calmar |
 |---|---|---|---|---|
 | Buy & Hold 1× | 10.1% | 0.40 | −84% | 0.12 |
 | MA200 → Cash | 11.3% | **0.60** | **−46%** | **0.24** |
-| **Lev 2× ABOVE MA** | **14.2%** | **0.47** | −89% | 0.16 |
+| Lev 1.5× ABOVE MA | 11.9% | 0.43 | −86% | 0.14 |
+| **Lev 2× ABOVE MA** | 14.2% | 0.47 | −89% | 0.16 |
+| Lev 3× ABOVE MA | **17.5%** | 0.50 | −96% | 0.18 |
 | Lev 2× BELOW MA *(Part I)* | 5.7% | 0.21 | −98% | 0.06 |
 
+**Closer look — 2000–2026 only** (excludes 1929/1987, so drawdowns are more
+survivable):
+
+| Strategy | CAGR | Sharpe | Max DD | Calmar |
+|---|---|---|---|---|
+| Buy & Hold 1× | 8.3% | 0.41 | −55% | 0.15 |
+| MA200 → Cash | 7.5% | **0.52** | **−21%** | **0.36** |
+| Lev 1.5× ABOVE MA | 9.5% | 0.43 | −59% | 0.16 |
+| Lev 2× ABOVE MA | 11.1% | 0.45 | −63% | 0.18 |
+| Lev 3× ABOVE MA | 13.4% | 0.47 | −74% | 0.18 |
+| Lev 2× BELOW MA *(Part I)* | 5.7% | 0.28 | −86% | 0.07 |
+
 **Inverting the rule roughly doubles the Sharpe and triples the CAGR** vs
-leveraging below trend, and beats buy-and-hold on CAGR/Sharpe/Calmar — but it
-still has deeper drawdowns than buy-and-hold and never beats plain move-to-cash
-on risk-adjusted terms. The closed-form/Monte-Carlo growth-optimum for the S&P is
-**Kelly ≈ 2×** (break-even ≈ 3.1×).
+leveraging below trend, and beats buy-and-hold on CAGR/Sharpe/Calmar in both
+windows — but it always has deeper drawdowns than buy-and-hold and never beats
+plain move-to-cash on risk-adjusted terms. (Post-2000 the drawdowns are far more
+survivable: 3× peaks at −74% rather than −96%.) The closed-form/Monte-Carlo
+growth-optimum for the S&P is **Kelly ≈ 2×** (break-even ≈ 3.1×).
 
 <p align="center">
 <img src="charts/F4_inverted_equity.png" width="80%">
+</p>
+
+**How much leverage matches the S&P?** This map plots the **break-even daily
+leverage** — the level whose compound return exactly ties 1× — for every
+combination of trend and volatility. On or below the labelled contour, leverage
+*matches or beats* 1×; above it, **volatility decay makes leverage lose**. The
+S&P (★) sits near its ≈3.1× break-even line.
+
+<p align="center">
+<img src="charts/F3_breakeven_leverage_map.png" width="80%">
 </p>
 
 **Net takeaway:** trend-following is fundamentally a *risk-reducer*; *if* you add

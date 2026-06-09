@@ -112,5 +112,43 @@
       "max_drawdown": -0.9818,
       "calmar": 0.0579
     }
+  },
+  "step4_inverted_2000plus": {
+    "Buy & Hold 1x": {
+      "cagr": 0.083,
+      "sharpe": 0.4132,
+      "max_drawdown": -0.5525,
+      "calmar": 0.1502
+    },
+    "MA200 -> Cash": {
+      "cagr": 0.0747,
+      "sharpe": 0.5235,
+      "max_drawdown": -0.2055,
+      "calmar": 0.3637
+    },
+    "Lev 1.5x ABOVE (net)": {
+      "cagr": 0.095,
+      "sharpe": 0.4274,
+      "max_drawdown": -0.5897,
+      "calmar": 0.161
+    },
+    "Lev 2x ABOVE (net)": {
+      "cagr": 0.1114,
+      "sharpe": 0.4533,
+      "max_drawdown": -0.6278,
+      "calmar": 0.1774
+    },
+    "Lev 3x ABOVE (net)": {
+      "cagr": 0.1335,
+      "sharpe": 0.4731,
+      "max_drawdown": -0.7352,
+      "calmar": 0.1816
+    },
+    "Lev 2x BELOW (net) [original]": {
+      "cagr": 0.057,
+      "sharpe": 0.2772,
+      "max_drawdown": -0.8591,
+      "calmar": 0.0663
+    }
   }
 }

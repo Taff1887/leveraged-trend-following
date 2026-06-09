@@ -755,6 +755,15 @@ CAGR peaks at Kelly and returns to the 1× level at break-even:
 
 ![Optimal leverage curve](../charts/F3_optimal_leverage_curve.png)
 
+**What leverage matches the S&P?** The map below plots the **break-even daily
+leverage** for every combination of trend and volatility. Reading a cell (or
+tracing a labelled contour) tells you the leverage whose compound return exactly
+*ties* 1×: on or below it, leverage matches or beats the index; above it,
+volatility decay makes leverage **lose**. The S&P (★) sits near its ≈3.1×
+break-even contour, with Kelly (≈2×) halfway between there and 1×.
+
+![Break-even leverage map](../charts/F3_breakeven_leverage_map.png)
+
 The full surfaces (by trend and volatility) show the same diagonal frontier as
 Part I — leverage is only rewarded where drift is high relative to volatility:
 
@@ -782,6 +791,25 @@ leveraged ~70% of the time):
 | **Lev 2× ABOVE** | 14.18% | 0.47 | −89.2% | 0.16 |
 | **Lev 3× ABOVE** | **17.48%** | 0.50 | −95.7% | 0.18 |
 | *Lev 2× BELOW (Part I)* | *5.68%* | *0.21* | *−98.2%* | *0.06* |
+
+**A closer look — 2000–2026 only.** The full-sample drawdowns above are dominated
+by 1929 and 1987 (single days that a daily-rebalanced 3× cannot survive). Cutting
+the sample to 2000 onward gives a more investable picture — same ranking, but with
+*survivable* drawdowns:
+
+| Strategy (2000–2026, net) | CAGR | Sharpe | Max drawdown | Calmar |
+|---|---|---|---|---|
+| Buy & Hold 1× | 8.30% | 0.41 | −55.3% | 0.15 |
+| MA200 → Cash | 7.47% | **0.52** | **−20.6%** | **0.36** |
+| Lev 1.5× ABOVE | 9.50% | 0.43 | −59.0% | 0.16 |
+| Lev 2× ABOVE | 11.14% | 0.45 | −62.8% | 0.18 |
+| Lev 3× ABOVE | **13.35%** | 0.47 | −73.5% | 0.18 |
+| *Lev 2× BELOW (Part I)* | *5.70%* | *0.28* | *−85.9%* | *0.07* |
+
+Post-2000 the inverted rule still beats buy-and-hold on CAGR, Sharpe, and Calmar,
+and the worst-case drawdown is much tamer (3× peaks at −74% rather than −96%) — but
+move-to-cash again has the best Sharpe, Calmar, and drawdown. The conclusion is
+robust across both windows.
 
 ![Inverted strategy equity](../charts/F4_inverted_equity.png)
 ![Inverted strategy drawdowns](../charts/F4_inverted_drawdowns.png)

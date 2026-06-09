@@ -75,6 +75,13 @@ def metrics_row(name, returns, rf, pp, extra=None):
     return row
 
 
+def period_metrics(name, returns, rf, start, tag=None):
+    """metrics_row but restricted to dates >= ``start`` (daily series)."""
+    r = returns[returns.index >= pd.Timestamp(start)].dropna()
+    rfx = rf.reindex(r.index) if hasattr(rf, "reindex") else rf
+    return metrics_row(name, r, rfx, 252, {"strategy": tag} if tag else None)
+
+
 # ===========================================================================
 # Step 0: Faber monthly replication
 # ===========================================================================
@@ -222,6 +229,55 @@ def step3_surfaces(u, rf_d):
 
 
 # ===========================================================================
+# Step 3b: the "what leverage matches the S&P?" contour map
+# ===========================================================================
+def step3b_breakeven_chart(u, rf_d):
+    """A volatility-vs-trend map whose value is the BREAK-EVEN daily leverage:
+    the leverage whose compound return exactly TIES 1x. Below the contour leverage
+    helps; above it, volatility decay makes leverage LOSE relative to 1x."""
+    print("[step 3b] break-even leverage contour map ...")
+    drifts = np.linspace(0.0, 0.15, 76)   # annual EXCESS arithmetic drift (over cash)
+    vols = np.linspace(0.05, 0.60, 76)    # annual volatility
+    D, V = np.meshgrid(drifts, vols)
+    L_be = np.clip(2.0 * D / V ** 2 - 1.0, 0.0, 5.0)   # break-even leverage
+
+    # The S&P's own point, from the long daily series.
+    rf_ann = float((1 + rf_d.reindex(u.index).fillna(0)).prod() **
+                   (config.TRADING_DAYS_PER_YEAR / len(u)) - 1)
+    mu_ex = float(u.mean() * config.TRADING_DAYS_PER_YEAR) - rf_ann
+    sigma = float(u.std(ddof=1) * np.sqrt(config.TRADING_DAYS_PER_YEAR))
+
+    pl.setup_style()
+    fig, ax = plt.subplots(figsize=(11.5, 6.8))
+    cf = ax.contourf(D * 100, V * 100, L_be, levels=np.linspace(0, 5, 26),
+                     cmap="RdYlGn", extend="max")
+    # Labelled contour lines at the leverage levels people actually consider.
+    lines = ax.contour(D * 100, V * 100, L_be,
+                       levels=[1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0],
+                       colors="black", linewidths=1.0)
+    ax.clabel(lines, fmt=lambda x: f"{x:g}x", fontsize=9)
+    # The "even 1x is too much" frontier (break-even leverage < 1).
+    ax.contour(D * 100, V * 100, L_be, levels=[1.0], colors="black", linewidths=2.6)
+
+    ax.plot(mu_ex * 100, sigma * 100, marker="*", color="black", markersize=22,
+            markeredgecolor="white", zorder=5)
+    ax.annotate(f"S&P 500\n(excess drift {mu_ex:.1%}, vol {sigma:.0%})\n"
+                f"break-even ≈ {2*mu_ex/sigma**2-1:.1f}x, Kelly ≈ {mu_ex/sigma**2:.1f}x",
+                xy=(mu_ex * 100, sigma * 100), xytext=(mu_ex * 100 + 2, sigma * 100 + 9),
+                fontsize=9, color="black",
+                arrowprops=dict(arrowstyle="->", color="black"),
+                bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="black", alpha=0.85))
+    cbar = fig.colorbar(cf, ax=ax)
+    cbar.set_label("Break-even daily leverage (the level that exactly ties 1x)")
+    ax.set_xlabel("Annual trend  (excess drift over cash, %)")
+    ax.set_ylabel("Annual volatility (%)")
+    ax.set_title("What daily leverage matches the S&P?\n"
+                 "On/below the labelled contour, leverage MATCHES or beats 1x; "
+                 "above it, volatility decay makes leverage LOSE")
+    save_chart(fig, "F3_breakeven_leverage_map.png")
+
+
+# ===========================================================================
 # Step 4: the inverted strategy (leverage ABOVE the MA)
 # ===========================================================================
 def step4_inverted(daily_idx, u, rf_d, bh, ma):
@@ -233,6 +289,9 @@ def step4_inverted(daily_idx, u, rf_d, bh, ma):
                         {"strategy": "ma_to_cash"})]
     curves = {"Buy & Hold 1x": bh.equity, "MA200 -> Cash": ma.equity}
     ret_for_dd = {"Buy & Hold 1x": bh.net_returns, "MA200 -> Cash": ma.net_returns}
+    # Keep net return series + tags so we can re-cut a 2000-onwards sub-period.
+    net_ret = {"Buy & Hold 1x": bh.net_returns, "MA200 -> Cash": ma.net_returns}
+    tags = {"Buy & Hold 1x": "buy_hold", "MA200 -> Cash": "ma_to_cash"}
 
     for L in levs:
         # Gross and NET (financing matters: leveraged ~70% of the time).
@@ -246,15 +305,25 @@ def step4_inverted(daily_idx, u, rf_d, bh, ma):
                                 {"strategy": "leveraged_above_ma_net"}))
         curves[f"Lev {L:g}x ABOVE (net)"] = net.equity
         ret_for_dd[f"Lev {L:g}x ABOVE (net)"] = net.net_returns
+        net_ret[f"Lev {L:g}x ABOVE (net)"] = net.net_returns
+        tags[f"Lev {L:g}x ABOVE (net)"] = "leveraged_above_ma_net"
 
     # For contrast: the ORIGINAL idea (leverage BELOW the MA) at 2x, net.
     below2 = bt.leveraged_bad_market(daily_idx, u, 200, 2.0, rf_daily=rf_d,
                                      costs=config.DEFAULT_COSTS)
     rows.append(metrics_row("Lev 2x BELOW (net) [original]", below2.net_returns, rf_d, 252,
                             {"strategy": "leveraged_below_ma_net"}))
+    net_ret["Lev 2x BELOW (net) [original]"] = below2.net_returns
+    tags["Lev 2x BELOW (net) [original]"] = "leveraged_below_ma_net"
 
     tbl = pd.DataFrame(rows)
     save_table(tbl, "faber_step4_inverted_strategy.csv")
+
+    # Closer picture: the SAME strategies, but only from 2000 onwards.
+    rows2000 = [period_metrics(name, r, rf_d, "2000-01-01", tags[name])
+                for name, r in net_ret.items()]
+    tbl2000 = pd.DataFrame(rows2000)
+    save_table(tbl2000, "faber_step4_inverted_2000plus.csv")
 
     fig = pl.plot_equity_comparison(
         curves, "Step 4 — Leverage ABOVE the MA (net of costs) vs baselines",
@@ -283,6 +352,10 @@ def step4_inverted(daily_idx, u, rf_d, bh, ma):
             k: r4(tbl[tbl.strategy == "leveraged_below_ma_net"].iloc[0][k])
             for k in ("cagr", "sharpe", "max_drawdown", "calmar")},
     }
+    H["step4_inverted_2000plus"] = {
+        row["name"]: {"cagr": r4(row["cagr"]), "sharpe": r4(row["sharpe"]),
+                      "max_drawdown": r4(row["max_drawdown"]), "calmar": r4(row["calmar"])}
+        for _, row in tbl2000.iterrows()}
 
 
 # ===========================================================================
@@ -310,6 +383,7 @@ def main():
     bh, ma, u = step1_baseline(daily_idx, rf_d)
     step2_leverage_index(daily_idx, u, rf_d, bh, ma)
     step3_surfaces(u, rf_d)
+    step3b_breakeven_chart(u, rf_d)
     step4_inverted(daily_idx, u, rf_d, bh, ma)
 
     with open(config.RESULTS_DIR / "headline_faber.json", "w") as f:
