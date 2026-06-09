@@ -464,6 +464,21 @@ def step4_inverted(daily_idx, u, rf_d, bh, ma):
                 "Lev 2x BELOW (net)": config.COLORS["neutral"]})
     save_chart(fig, "F4_direction_comparison.png")
 
+    # "Buy leverage LOW" (below the MA) equity + drawdowns, for the switching step.
+    below_curves = {"Buy & Hold 1x": bh.equity, "MA200 -> Cash": ma.equity}
+    below_dd = {"Buy & Hold 1x": bh.net_returns, "MA200 -> Cash": ma.net_returns}
+    for L in levs:
+        below_curves[f"Lev {L:g}x BELOW (net)"] = rt.cumulative_index(net_ret[f"Lev {L:g}x BELOW (net)"])
+        below_dd[f"Lev {L:g}x BELOW (net)"] = net_ret[f"Lev {L:g}x BELOW (net)"]
+    fig = pl.plot_equity_comparison(
+        below_curves, "Buy leverage LOW (below the 200-day MA) vs baselines",
+        "F6_below_equity.png")
+    save_chart(fig, "F6_below_equity.png")
+    fig = pl.plot_drawdowns(
+        below_dd, "Drawdowns: buy leverage LOW (below the 200-day MA)",
+        "F6_below_drawdowns.png")
+    save_chart(fig, "F6_below_drawdowns.png")
+
     # Headline: best inverted (net) by Sharpe vs buy&hold.
     inv = tbl[tbl["strategy"] == "leveraged_above_ma_net"].copy()
     best = inv.loc[inv["sharpe"].idxmax()]

@@ -32,7 +32,7 @@ We test leverage **1.0, 1.25, 1.5, 2.0, 2.5, 3.0×** and moving-average windows 
 **50, 100, 150, 200, 210, 250, 252 days**, gross and net of realistic costs — and
 we do **not** assume it works.
 
-## Headline result: it doesn't beat buy-and-hold
+## Results at a glance
 
 S&P 500 total return, 1988–2026 (38 years), gross of costs:
 
