@@ -347,8 +347,8 @@ def step5_event_studies(daily_idx, u):
     low -- the catch being that you cannot know the low in real time."""
     print("[step 5] buying leverage at crisis lows ...")
     windows = [("GFC bottom (2009)", "2008-09-01", "2009-12-31"),
+               ("2018 Q4 selloff", "2018-10-01", "2019-01-31"),
                ("COVID bottom (2020)", "2020-02-01", "2020-07-31"),
-               ("2022 bear bottom", "2022-06-01", "2023-06-30"),
                ("2025 tariff selloff", "2025-01-01", "2025-12-31")]
     levs = [1.0, 1.5, 2.0, 3.0]
     horizons = [("6mo", 126), ("1yr", 252), ("3yr", 756)]
@@ -391,6 +391,57 @@ def step5_event_studies(daily_idx, u):
     H["step5_event_studies"] = {
         r["event"] + f" ({r['horizon']})": {f"{L:g}x": r4(r[f"{L:g}x"]) for L in levs}
         for r in rows if r["horizon"] == "1yr"}
+
+
+# ===========================================================================
+# Step 6: starting from a single date (and shorter recent windows)
+# ===========================================================================
+def step6_start_dates(daily_idx, u, rf_d):
+    """Grow $1 under each strategy from chosen start dates, and chart the last
+    ~26 years (from 22 Aug 2000) and the last 15 years."""
+    print("[step 6] start-date / recent-window analysis ...")
+    # The standard strategy set: baselines + leverage-the-uptrend (net of costs).
+    bh = bt.buy_and_hold(u, rf_daily=rf_d, name="Buy & Hold 1x")
+    ma = bt.ma_to_cash(daily_idx, u, 200, rf_daily=rf_d)
+    strat = {"Buy & Hold 1x": bh.net_returns, "MA200 -> Cash": ma.net_returns}
+    for L in (1.5, 2.0, 3.0):
+        strat[f"Lev {L:g}x above MA"] = bt.leveraged_above_ma(
+            daily_idx, u, 200, L, rf_daily=rf_d, costs=config.DEFAULT_COSTS).net_returns
+
+    last = u.index.max()
+    windows = [
+        ("from 22 Aug 2000 (~26 years)", "2000-08-22", "F7_since_2000.png"),
+        ("last 15 years", str((last - pd.Timedelta(days=365 * 15)).date()), "F8_last_15y.png"),
+    ]
+    # Distinct colour per line so none collide on the chart.
+    cmap = {"Buy & Hold 1x": config.COLORS["buy_hold"],
+            "MA200 -> Cash": config.COLORS["ma_cash"],
+            "Lev 1.5x above MA": config.COLORS["accent"],
+            "Lev 2x above MA": config.COLORS["leveraged"],
+            "Lev 3x above MA": config.COLORS["neutral"]}
+    rows = []
+    for label, start, fname in windows:
+        curves = {}
+        for name, r in strat.items():
+            rr = r[r.index >= pd.Timestamp(start)].dropna()
+            curves[name] = rt.cumulative_index(rr)
+            rfx = rf_d.reindex(rr.index)
+            rows.append({"window": label, "start": start, "strategy": name,
+                         "grew_1dollar_to": float((1.0 + rr).prod()),
+                         "cagr": mx.cagr(rr), "sharpe": mx.sharpe_ratio(rr, rfx),
+                         "max_drawdown": mx.max_drawdown(rr)})
+        fig = pl.plot_equity_comparison(curves, f"Growth of one dollar -- {label}",
+                                        fname, colors=cmap)
+        save_chart(fig, fname)
+
+    tbl = pd.DataFrame(rows)
+    save_table(tbl, "faber_step6_start_dates.csv")
+    H["step6_start_dates"] = {
+        w: {row["strategy"]: {"grew_1dollar_to": r4(row["grew_1dollar_to"]),
+                              "cagr": r4(row["cagr"]), "sharpe": r4(row["sharpe"]),
+                              "max_drawdown": r4(row["max_drawdown"])}
+            for _, row in tbl[tbl["window"] == w].iterrows()}
+        for w in tbl["window"].unique()}
 
 
 # ===========================================================================
@@ -532,6 +583,7 @@ def main():
     step3b_breakeven_chart(u, rf_d)
     step3c_zero_return_map(u)
     step5_event_studies(daily_idx, u)
+    step6_start_dates(daily_idx, u, rf_d)
     step4_inverted(daily_idx, u, rf_d, bh, ma)
 
     with open(config.RESULTS_DIR / "headline_faber.json", "w") as f:

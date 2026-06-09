@@ -1,265 +1,226 @@
 # Trend Following, Leveraged Re-Entry, and Volatility Decay
 
-### Can daily leveraged S&P 500 exposure improve long-term returns?
+### Can daily-leveraged S&P 500 exposure improve long-term returns?
 
-A small, readable, **reproducible** quantitative-research project that honestly
-tests a tempting idea — and finds that it does not work. Built from scratch in
-Python (no black-box backtesting frameworks) so a beginner can read the code and
-the paper from start to finish.
+A small, readable, **reproducible** quantitative-research project, built from
+scratch in Python (no black-box backtesting frameworks). It tests one trend
+signal — the **200-day moving average** (the daily twin of Mebane Faber's 10-month
+rule) — on S&P 500 **total return**, as far back as the data allows, and then asks
+what happens when you switch leverage on and off with it.
 
 > ⚠️ **Educational research only — not investment advice.** Leveraged ETFs are
-> high-risk and can lose most of their value.
+> high-risk instruments that can lose most of their value. Past performance — real
+> or simulated — does not predict the future.
 
 ---
 
-## The hypothesis
+## TL;DR — what I found
 
-The classic **Faber trend rule** holds the S&P 500 when it is above its long
-moving average and **moves to cash** when it falls below. This project tests a
-twist:
+1. **The 200-day MA adds real risk-adjusted value.** Moving to cash below the
+   trend keeps the return while roughly **halving the worst drawdown** (Sharpe
+   0.60 vs 0.40; max drawdown −46% vs −84% since 1928).
+2. **Direction is everything for leverage.** *Leveraging the uptrend* (extra
+   leverage while **above** the MA, plain 1× below) **beats buy & hold** on CAGR,
+   Sharpe, Sortino and Calmar at every level. *Leveraging the downtrend* (the
+   intuitive "buy leverage when it's cheap" below the MA) is a disaster — 3× below
+   the MA actually turns $1 into **$0.79**.
+3. **Volatility decay is the catch.** Held *constantly*, leverage decays (3× ends
+   below 1× over a century). Leverage only pays in low-volatility uptrends — which
+   is exactly what "above the 200-day MA" selects for.
+4. **Leverage works spectacularly if you can time the bottom** (3× off the COVID
+   low returned **+372%** in a year) — but the bottom is only obvious in hindsight.
+5. **Honest caveats:** leveraging the uptrend has **deeper drawdowns** than buy &
+   hold, and it does **not** beat the plain move-to-cash rule on a risk-adjusted
+   basis. Trend-following is fundamentally a *risk-reducer*; *if* you add leverage,
+   add it modestly (~1.5–2×) **above** the trend, never below.
 
-> **When the S&P 500 is *below* its moving average, hold *daily-leveraged* S&P 500
-> instead of cash** — on the theory that bad markets are followed by strong
-> rebounds that leverage could amplify.
+Full write-up: **[`reports/research_paper.md`](reports/research_paper.md)** (PDF in
+`reports/research_paper.pdf`).
 
-| | Above the moving average | Below the moving average |
-|---|---|---|
-| Buy & Hold | 1× | 1× |
-| MA → Cash (Faber) | 1× | cash (T-bills) |
-| **This project** | **1×** | **L× daily leverage** (L = 1.25 … 3.0) |
+---
 
-We test leverage **1.0, 1.25, 1.5, 2.0, 2.5, 3.0×** and moving-average windows of
-**50, 100, 150, 200, 210, 250, 252 days**, gross and net of realistic costs — and
-we do **not** assume it works.
+## The strategy: leverage the uptrend
 
-## Results at a glance
+Use the 200-day MA to switch exposure: **hold L× leverage while the S&P is above
+its MA** (the calm, rising regime), and drop to plain 1× while it is below. The
+signal is lagged one day, so nothing uses information we couldn't have had.
 
-S&P 500 total return, 1988–2026 (38 years), gross of costs:
+S&P 500 daily total return, **1928–2026, net of costs** (fees + financing + turnover):
 
-| Strategy | CAGR | Volatility | Sharpe | Max drawdown | Calmar |
-|---|---|---|---|---|---|
-| Buy & Hold (1×) | 11.5% | 17.9% | 0.54 | −55% | 0.21 |
-| **MA200 → Cash** (Faber) | 10.2% | 11.8% | **0.64** | **−21%** | **0.50** |
-| Lev 1.5× below MA | 11.6% | 23.4% | 0.47 | −71% | 0.16 |
-| Lev 2× below MA | 11.2% | 29.4% | 0.41 | −83% | 0.14 |
-| Lev 3× below MA | 9.0% | 42.0% | 0.35 | −96% | 0.09 |
+| Strategy | Grew $1 to | CAGR | Vol | Sharpe | Sortino | Max DD | Calmar |
+|---|---|---|---|---|---|---|---|
+| Buy & Hold 1× | $13,021 | 10.1% | 18.9% | 0.40 | 0.56 | −83.9% | 0.12 |
+| MA200 → Cash (Faber) | $33,090 | 11.3% | 12.6% | **0.60** | **0.84** | **−46.2%** | **0.24** |
+| Lev 1.5× above MA | $55,471 | 11.9% | 23.6% | 0.43 | 0.60 | −85.7% | 0.14 |
+| Lev 2× above MA | $402,863 | 14.2% | 28.9% | 0.47 | 0.66 | −89.2% | 0.16 |
+| Lev 3× above MA | **$6,429,403** | **17.5%** | 40.4% | 0.50 | 0.71 | −95.7% | 0.18 |
 
-* **0 of 35** genuinely-leveraged configurations beat buy-and-hold on all of
-  CAGR / Sharpe / Calmar / drawdown — and **0** beat it on Sharpe — gross *or*
-  net of costs.
-* Leverage barely changes CAGR but **massively deepens drawdowns** and **lowers
-  Sharpe**.
-* The **original move-to-cash rule is the risk-adjusted winner.**
+<p align="center"><img src="charts/F4_inverted_equity.png" width="82%"></p>
 
-**Why?** Daily leverage suffers **volatility decay** (≈ ½·L²·σ² per year). The
-strategy leverages *below-trend* markets — the **highest-volatility** regimes —
-so it applies leverage exactly where the math says not to.
+For contrast, the opposite switch — *buy leverage low* (leverage **below** the MA) —
+gets worse as leverage rises: 2× below grows $1 to just **$217**, and 3× below to
+**$0.79**. The 200-day MA flags "below trend" at the *start* of declines (high
+volatility, still falling), not at the bottom — exactly where leverage hurts most.
 
-<p align="center">
-<img src="charts/03_equity_leverage_levels_200d.png" width="80%">
-</p>
+---
 
-The 3× line leads into 2000, then collapses ~96% in the 2008 bear and never
-recovers its lead. A 10,000-path Monte Carlo shows leverage only pays in
-**low-volatility, positive-drift** markets:
+## Starting more recently
 
-<p align="center">
-<img src="charts/07_mc_optimal_leverage.png" width="70%">
-</p>
+**$1 invested on 22 August 2000** (just before the dot-com crash — an unkind start), to today:
 
-(Optimal leverage is high only in the top-right — low vol, high drift. Below-trend
-"bad markets" live in the high-vol bottom rows, where the optimum is **1×**.)
-
-## Part II — following Faber faithfully, and fixing the direction
-
-Part II (run `python run_faber_leverage.py`) does the analysis Faber's way —
-**monthly, 10-month SMA, total return back to 1901** (replicating his published
-−83.7%→−42.2% drawdown reduction to within a point) — and tests the **inverted**
-rule on daily data back to **1928**: *leverage above the trend, 1× below.*
-
-**Which direction? Full history — 1928–2026, net of costs.** "Buy leverage low"
-(below the MA) vs "leverage the uptrend" (above the MA), at every level:
-
-| Strategy | CAGR | Sharpe | Sortino | Max DD | Calmar |
-|---|---|---|---|---|---|
-| Buy & Hold 1× | 10.1% | 0.40 | 0.56 | −84% | 0.12 |
-| MA200 → Cash | 11.3% | **0.60** | **0.84** | **−46%** | **0.24** |
-| Lev 1.5× **ABOVE** | 11.9% | 0.43 | 0.60 | −86% | 0.14 |
-| Lev 2× **ABOVE** | 14.2% | 0.47 | 0.66 | −89% | 0.16 |
-| Lev 3× **ABOVE** | **17.5%** | 0.50 | 0.71 | −96% | 0.18 |
-| Lev 1.5× *BELOW* | 7.9% | 0.27 | 0.38 | −94% | 0.08 |
-| Lev 2× *BELOW* | 5.7% | 0.21 | 0.29 | −98% | 0.06 |
-| Lev 3× *BELOW* | −0.2% | 0.13 | 0.19 | −100% | −0.00 |
-
-The intuitive **"buy leverage low"** (below the MA) gets *worse* with leverage and
-3× actually loses money — because the 200-day MA flags "below trend" at the
-*start* of declines (high-volatility, still-falling), not at the bottom.
-**Leveraging the uptrend (above the MA)** gets *better* with leverage. Same idea,
-opposite direction, ~2000× difference in terminal wealth:
-
-<p align="center">
-<img src="charts/F4_direction_comparison.png" width="80%">
-</p>
-
-**Closer look — 2000–2026 only** (excludes 1929/1987, so drawdowns are more
-survivable):
-
-| Strategy | CAGR | Sharpe | Max DD | Calmar |
+| Strategy | Grew $1 to | CAGR | Sharpe | Max DD |
 |---|---|---|---|---|
-| Buy & Hold 1× | 8.3% | 0.41 | −55% | 0.15 |
-| MA200 → Cash | 7.5% | **0.52** | **−21%** | **0.36** |
-| Lev 1.5× ABOVE MA | 9.5% | 0.43 | −59% | 0.16 |
-| Lev 2× ABOVE MA | 11.1% | 0.45 | −63% | 0.18 |
-| Lev 3× ABOVE MA | 13.4% | 0.47 | −74% | 0.18 |
-| Lev 2× BELOW MA *(Part I)* | 5.7% | 0.28 | −86% | 0.07 |
+| Buy & Hold 1× | $7.97 | 8.4% | 0.42 | −55% |
+| MA200 → Cash | $7.24 | 8.0% | **0.59** | **−21%** |
+| Lev 1.5× above MA | $11.52 | 10.0% | 0.45 | −59% |
+| Lev 2× above MA | $18.51 | 12.0% | 0.49 | −63% |
+| Lev 3× above MA | **$37.43** | **15.1%** | 0.52 | −70% |
 
-**Inverting the rule roughly doubles the Sharpe and triples the CAGR** vs
-leveraging below trend, and beats buy-and-hold on CAGR/Sharpe/Calmar in both
-windows — but it always has deeper drawdowns than buy-and-hold and never beats
-plain move-to-cash on risk-adjusted terms. (Post-2000 the drawdowns are far more
-survivable: 3× peaks at −74% rather than −96%.) The closed-form/Monte-Carlo
-growth-optimum for the S&P is **Kelly ≈ 2×** (break-even ≈ 3.1×).
+<p align="center"><img src="charts/F7_since_2000.png" width="82%"></p>
+
+**Last 15 years** — leverage-the-uptrend delivered far higher returns at roughly
+the *same Sharpe* as buy & hold (3× above: 28%/yr at Sharpe 0.81 vs buy & hold's
+15% at 0.79):
+
+| Strategy | Grew $1 to | CAGR | Sharpe | Max DD |
+|---|---|---|---|---|
+| Buy & Hold 1× | $7.68 | 14.6% | 0.79 | −34% |
+| MA200 → Cash | $4.68 | 10.9% | 0.81 | −18% |
+| Lev 2× above MA | $18.59 | 21.6% | 0.81 | −46% |
+| Lev 3× above MA | **$41.07** | **28.2%** | 0.81 | −56% |
+
+<p align="center"><img src="charts/F8_last_15y.png" width="82%"></p>
+
+---
+
+## Leverage works — if you can time the bottom
+
+Volatility decay only bites in choppy/falling markets. In a one-directional rally
+off a low, leverage amplifies the gain. **1-year forward total return if you bought
+at the exact bottom:**
+
+| Bottom | 1× | 1.5× | 2× | 3× |
+|---|---|---|---|---|
+| GFC (2009-03-09) | +72% | +122% | +182% | **+339%** |
+| 2018 Q4 (2018-12-24) | +40% | +64% | +92% | **+159%** |
+| COVID (2020-03-23) | +78% | +132% | +198% | **+372%** |
+| 2025 tariff selloff (2025-04-08) | +39% | +61% | +87% | **+146%** |
+
+<p align="center"><img src="charts/F5_buy_leverage_at_lows.png" width="82%"></p>
+
+The catch: the low is only obvious in hindsight, and the 200-day MA does **not**
+buy bottoms — which is why leveraging *below* the trend fails.
+
+---
+
+## How much leverage is too much?
+
+Two maps over trend (the 1× CAGR) and volatility. The **zero-return** map shows the
+leverage at which volatility decay exactly cancels the trend — for the recent S&P
+(CAGR ~15%, vol ~18%) that flat point is **≈ 10×**, so a "10× S&P" fund would have
+gone nowhere. The **break-even** map shows the leverage that merely *ties* 1× (≈ 3.1×
+for the S&P; the growth-optimal "Kelly" level is ≈ 2×).
 
 <p align="center">
-<img src="charts/F4_inverted_equity.png" width="80%">
-</p>
-
-**Leverage works if you time it.** Buying leverage at the *exact* market bottom is
-spectacular — 1-year forward total return of **+339% (3×) off the GFC low** and
-**+372% off the COVID low** — the problem is the low is only obvious in hindsight,
-and the MA's "below-trend" signal fires at the *start* of declines, not the bottom.
-
-<p align="center">
-<img src="charts/F5_buy_leverage_at_lows.png" width="80%">
-</p>
-
-**How much leverage is "too much"?** Two maps over trend × volatility. The
-**break-even** map shows the leverage that exactly *ties* 1× (S&P ★ ≈ 3.1×); the
-**zero-return** map shows the leverage at which volatility decay cancels the trend
-entirely (total return = 0). For the recent S&P (CAGR ~15%, vol ~18%) that flat
-point is **≈ 10×** — a "10× S&P" fund would have gone nowhere.
-
-<p align="center">
-<img src="charts/F3_breakeven_leverage_map.png" width="49%">
 <img src="charts/F3_zero_return_leverage_map.png" width="49%">
+<img src="charts/F3_breakeven_leverage_map.png" width="49%">
 </p>
 
-**Net takeaway:** trend-following is fundamentally a *risk-reducer*; *if* you add
-leverage, add it modestly (~1.5–2×) **above** the trend, never below it. Long data
-back to 1928 is real `^SP500TR` (1988+) spliced with a Shiller-dividend
-reconstruction (validated at 0.5%/yr tracking error vs the real series).
-
-## Repository layout
-
-```
-README.md                  ← you are here
-requirements.txt
-run_all.py                 ← Part I: regenerates results + charts
-run_faber_leverage.py      ← Part II: Faber replication + inverted strategy
-build_notebooks.py         ← regenerates the 9 notebooks from source
-build_pdf.py               ← optional: rebuild the paper PDF
-data/
-  raw/                     ← cached Yahoo Finance downloads (one CSV per ticker)
-src/
-  config.py                ← all paths, tickers, parameters, cost assumptions
-  data_loader.py           ← download + cache (with offline synthetic fallback)
-  data_cleaning.py         ← clean/align series + data-summary table
-  returns.py               ← prices → returns → cumulative index
-  signals.py               ← moving-average trend signal (lagged)
-  long_history.py          ← long total return: Shiller (1871+) + daily reconstruction
-  backtest.py              ← from-scratch daily backtester (incl. leverage above/below MA)
-  metrics.py               ← CAGR, vol, Sharpe, Sortino, drawdown, Calmar, ...
-  sweep.py                 ← parameter sweep + period/episode analysis
-  plots.py                 ← all charts
-  monte_carlo.py           ← volatility-decay / optimal-leverage simulations
-  etf_tests.py             ← synthetic leverage vs real leveraged ETFs
-notebooks/                 ← 01…09, runnable in order, beginner → advanced
-charts/                    ← all figures (.png)
-results/                   ← all result tables (.csv) + headline_results.json
-reports/
-  research_paper.md        ← the full 20-section study
-  executive_summary.md     ← one-page summary
-```
+---
 
 ## Install
 
 ```bash
-git clone <this-repo>
+git clone https://github.com/Taff1887/leveraged-trend-following
 cd leveraged-trend-following
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+pip install -r requirements.txt          # Python 3.10+
 ```
 
-Requires Python 3.10+.
-
-## Run the analysis
+## Run
 
 ```bash
-# Reproduce every table (results/) and chart (charts/) and the headline JSON.
-# Uses cached data in data/raw; downloads from Yahoo Finance on first run.
-python run_all.py
-
-# Quicker run with a smaller Monte Carlo grid:
-python run_all.py --fast
-# Or set the number of Monte Carlo paths explicitly:
-python run_all.py --mc-paths 10000
-
-# Part II: Faber replication (monthly, 1901+) + the inverted leverage-above-MA
-# strategy on daily data back to 1928. Downloads the Shiller spreadsheet once.
+# The main study (this README + research_paper.md): Faber replication, the
+# leverage-the-uptrend strategy, volatility-decay maps, event studies, recent
+# windows. Downloads the Shiller spreadsheet + Yahoo data once, then caches.
 python run_faber_leverage.py
+
+# Supplementary: a broader sweep (50–252-day MAs, costs, periods), a 10,000-path
+# Monte Carlo, and a real leveraged-ETF reality check (SSO/UPRO/SPXL).
+python run_all.py            # add --fast for a quicker Monte Carlo
+
+python build_notebooks.py    # rebuild the 9 teaching notebooks
+python -m pytest tests/ -q   # 11 sanity tests (vol-decay math, no look-ahead, metrics)
+python build_pdf.py          # optional: rebuild the PDF (pip install markdown-pdf pymupdf)
 ```
 
-## Reproduce the charts / notebooks
+## Repository layout
 
-* Charts are written to `charts/` by `python run_all.py`.
-* Run the test suite with `python -m pytest tests/ -q` (11 fast sanity tests
-  covering volatility-decay arithmetic, the no-look-ahead lag, the Sortino/metric
-  formulas, and the monthly-signal one-month lag).
-* Rebuild the PDF (optional, needs `pip install markdown-pdf pymupdf`):
-  `python build_pdf.py`.
-* The eight teaching notebooks are generated by `python build_notebooks.py` and
-  are designed to be read **in order**:
+```
+README.md
+requirements.txt
+run_faber_leverage.py   ← the main study (the 6 steps in the paper)
+run_all.py              ← supplementary broad sweep + Monte Carlo + ETF tests
+build_notebooks.py      ← regenerates the 9 notebooks
+build_pdf.py            ← optional PDF build
+src/
+  config.py             ← paths, tickers, parameters, cost assumptions
+  data_loader.py        ← Yahoo download + cache (offline synthetic fallback)
+  long_history.py       ← long total return: Shiller (1871+) + daily reconstruction
+  data_cleaning.py      ← clean/align series + data-summary table
+  returns.py            ← prices → returns → cumulative index
+  signals.py            ← 200-day MA trend signal (lagged, no look-ahead)
+  backtest.py           ← from-scratch daily backtester (leverage above/below MA)
+  metrics.py            ← CAGR, vol, Sharpe, Sortino, drawdown, Calmar (daily or monthly)
+  monte_carlo.py        ← volatility-decay / optimal-leverage simulations
+  sweep.py              ← parameter sweep + period/episode analysis
+  plots.py              ← all charts
+  etf_tests.py          ← synthetic leverage vs real leveraged ETFs
+notebooks/              ← 01…09, runnable in order, beginner → advanced
+charts/   results/      ← all figures (.png) and result tables (.csv/.json)
+reports/
+  research_paper.md     ← the step-by-step study (+ research_paper.pdf)
+  executive_summary.md  ← one-page summary
+```
 
-| Notebook | Topic |
+## Notebooks (read in order)
+
+| # | Topic |
 |---|---|
-| 01 | Load & clean the S&P 500 total-return data |
-| 02 | Buy-and-hold baseline and how every metric is defined |
-| 03 | Moving-average timing (the Faber move-to-cash rule) |
-| 04 | The leveraged bad-market strategy |
-| 05 | Parameter sweep + heatmaps (no cherry-picking) |
+| 01–03 | Load/clean the data; buy & hold; the Faber moving-average rule |
+| 04–05 | Daily leverage; sweeping window × leverage (no cherry-picking) |
 | 06 | Real leveraged-ETF reality check (SSO / UPRO / SPXL) |
 | 07 | Monte Carlo & volatility decay |
-| 08 | Final results & verdict (Part I) |
-| 09 | Faber replication + the inverted (leverage-above-trend) strategy (Part II) |
+| 08 | Results of the broad exploration |
+| 09 | **Faber replication + the leverage-the-uptrend strategy** (matches the paper) |
 
 ## Data
 
-* **Primary:** `^SP500TR` — true daily S&P 500 **total return** (1988+).
-* **Long-history context:** `^GSPC` price index (1927+, dividends excluded).
-* **Risk-free / financing:** `^IRX` 13-week T-bill (1960+).
-* **Real leveraged ETFs:** SSO (2×), UPRO (3×), SPXL (3×); 1× proxies SPY/IVV/SPLG/VOO.
+* **Long daily total return, 1928–2026** — real `^SP500TR` from 1988, and before
+  that `^GSPC` price + the Shiller dividend yield (this reconstruction tracks the
+  real series with 0.5%/yr error and 0.9996 correlation over their overlap).
+* **Monthly total return back to 1901** (Shiller) for the Faber replication.
+* **Cash / financing:** `^IRX` 13-week T-bill (a 3.5% constant before 1960).
+* **Real leveraged ETFs:** SSO (2×), UPRO (3×), SPXL (3×).
 
-All from Yahoo Finance via `yfinance`, cached locally. New tickers can be added by
-editing one dictionary in `src/config.py`. If you are offline, the loader falls
-back to a clearly-labelled synthetic series so the pipeline still runs (no results
-in the paper use it). Full provenance: `results/data_summary.csv`.
+Sources are Yahoo Finance (`yfinance`) and Robert Shiller's public dataset, all
+cached in `data/raw`. New tickers: edit one dictionary in `src/config.py`.
 
-## Key limitations
+## Limitations
 
-* True daily *total-return* data starts in 1988 (one ~38-year sample).
-* Leveraged ETFs are young (2006–2009) and born into a bull market.
-* Monte Carlo uses constant drift/vol with i.i.d. (optionally fat-tailed) shocks;
-  real volatility clustering makes leverage in bad regimes *worse*, not better.
-* US-centric single index; no taxes.
-
-See [`reports/research_paper.md`](reports/research_paper.md) §19 for the full list.
+* True daily *total-return* data begins in 1988; pre-1988 is a validated
+  reconstruction, and the pre-1960 cash rate is a documented constant.
+* Leveraging the uptrend still suffers **deep drawdowns** (you're leveraged going
+  into fast crashes) and does not beat move-to-cash on a risk-adjusted basis.
+* Real leveraged ETFs are young (2006–2009) and born into a bull market.
+* Monte Carlo uses constant drift/vol with i.i.d. shocks; real volatility
+  clustering punishes leverage *more*. US-only, single index, no taxes.
 
 ## What I'd build next
 
-The result inverts the hypothesis: **leverage belongs in calm uptrends, not
-volatile downtrends.** Natural follow-ups: leverage *above* the MA / de-risk
-below it; **volatility targeting** (`target_vol / realized_vol`); multi-timeframe
-trend signals; longer and international histories.
+**Volatility targeting** (scale leverage by `target_vol / realized_vol`) to tame
+the deep drawdowns; multi-timeframe trend signals; international and longer
+histories; explicit tax modelling.
 
 ---
 

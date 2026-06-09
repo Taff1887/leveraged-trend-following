@@ -84,23 +84,89 @@
       "2x": 1.82,
       "3x": 3.3894
     },
+    "2018 Q4 selloff (1yr)": {
+      "1x": 0.3989,
+      "1.5x": 0.6433,
+      "2x": 0.9217,
+      "3x": 1.5925
+    },
     "COVID bottom (2020) (1yr)": {
       "1x": 0.778,
       "1.5x": 1.3188,
       "2x": 1.9803,
       "3x": 3.7154
     },
-    "2022 bear bottom (1yr)": {
-      "1x": 0.2305,
-      "1.5x": 0.3515,
-      "2x": 0.4746,
-      "3x": 0.7218
-    },
     "2025 tariff selloff (1yr)": {
       "1x": 0.3855,
       "1.5x": 0.6145,
       "2x": 0.8693,
       "3x": 1.4588
+    }
+  },
+  "step6_start_dates": {
+    "from 22 Aug 2000 (~26 years)": {
+      "Buy & Hold 1x": {
+        "grew_1dollar_to": 7.9652,
+        "cagr": 0.084,
+        "sharpe": 0.4238,
+        "max_drawdown": -0.5525
+      },
+      "MA200 -> Cash": {
+        "grew_1dollar_to": 7.2443,
+        "cagr": 0.08,
+        "sharpe": 0.5895,
+        "max_drawdown": -0.2055
+      },
+      "Lev 1.5x above MA": {
+        "grew_1dollar_to": 11.5213,
+        "cagr": 0.0996,
+        "sharpe": 0.4526,
+        "max_drawdown": -0.5897
+      },
+      "Lev 2x above MA": {
+        "grew_1dollar_to": 18.5052,
+        "cagr": 0.1201,
+        "sharpe": 0.4887,
+        "max_drawdown": -0.6278
+      },
+      "Lev 3x above MA": {
+        "grew_1dollar_to": 37.4272,
+        "cagr": 0.1511,
+        "sharpe": 0.5201,
+        "max_drawdown": -0.6968
+      }
+    },
+    "last 15 years": {
+      "Buy & Hold 1x": {
+        "grew_1dollar_to": 7.6816,
+        "cagr": 0.146,
+        "sharpe": 0.7861,
+        "max_drawdown": -0.3379
+      },
+      "MA200 -> Cash": {
+        "grew_1dollar_to": 4.6826,
+        "cagr": 0.1087,
+        "sharpe": 0.8077,
+        "max_drawdown": -0.1796
+      },
+      "Lev 1.5x above MA": {
+        "grew_1dollar_to": 11.5486,
+        "cagr": 0.1777,
+        "sharpe": 0.7918,
+        "max_drawdown": -0.4007
+      },
+      "Lev 2x above MA": {
+        "grew_1dollar_to": 18.5897,
+        "cagr": 0.2158,
+        "sharpe": 0.809,
+        "max_drawdown": -0.4582
+      },
+      "Lev 3x above MA": {
+        "grew_1dollar_to": 41.0727,
+        "cagr": 0.282,
+        "sharpe": 0.812,
+        "max_drawdown": -0.5596
+      }
     }
   },
   "step4_inverted": {

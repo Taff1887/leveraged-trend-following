@@ -104,8 +104,8 @@ like the rebound off a market bottom — leverage amplifies the gain. Forward
 | Bottom | 1× | 1.5× | 2× | 3× |
 |---|---|---|---|---|
 | GFC (2009-03-09) | +72% | +122% | +182% | **+339%** |
+| 2018 Q4 (2018-12-24) | +40% | +64% | +92% | **+159%** |
 | COVID (2020-03-23) | +78% | +132% | +198% | **+372%** |
-| 2022 (2022-10-12) | +23% | +35% | +47% | +72% |
 | 2025 tariff selloff (2025-04-08) | +39% | +61% | +87% | **+146%** |
 
 ![Buying leverage at the lows](../charts/F5_buy_leverage_at_lows.png)
@@ -163,6 +163,47 @@ CAGR, Sharpe, Sortino and Calmar at every level. The trade-off: its maximum
 drawdown is deeper than buy & hold's (you are leveraged going *into* fast
 crashes), and it does not beat the plain move-to-cash rule on a risk-adjusted
 basis.
+
+---
+
+## 6. What if you'd started more recently?
+
+The history above runs from 1928 (almost a century). For a closer picture, here is
+the same leverage-the-uptrend strategy over shorter, more relevant windows.
+
+**$1 invested on 22 August 2000** — right before the dot-com crash, a deliberately
+unkind starting point — grown to today:
+
+| Strategy | Grew $1 to | CAGR | Sharpe | Max DD |
+|---|---|---|---|---|
+| Buy & Hold 1× | $7.97 | 8.4% | 0.42 | −55.3% |
+| MA200 → Cash | $7.24 | 8.0% | **0.59** | **−20.6%** |
+| Lev 1.5× above MA | $11.52 | 10.0% | 0.45 | −59.0% |
+| Lev 2× above MA | $18.51 | 12.0% | 0.49 | −62.8% |
+| Lev 3× above MA | **$37.43** | **15.1%** | 0.52 | −69.7% |
+
+![Growth of one dollar since 22 Aug 2000](../charts/F7_since_2000.png)
+
+Even from a market peak, leveraging the uptrend turned $1 into ~$37 at 3× versus
+~$8 for buy & hold — though it spent 2000–2012 *behind* (leveraged into the
+dot-com and GFC bears before the trend signal flipped to 1×).
+
+**Last 15 years** (the post-GFC era):
+
+| Strategy | Grew $1 to | CAGR | Sharpe | Max DD |
+|---|---|---|---|---|
+| Buy & Hold 1× | $7.68 | 14.6% | 0.79 | −33.8% |
+| MA200 → Cash | $4.68 | 10.9% | **0.81** | **−18.0%** |
+| Lev 1.5× above MA | $11.55 | 17.8% | 0.79 | −40.1% |
+| Lev 2× above MA | $18.59 | 21.6% | **0.81** | −45.8% |
+| Lev 3× above MA | **$41.07** | **28.2%** | **0.81** | −56.0% |
+
+![Growth of one dollar, last 15 years](../charts/F8_last_15y.png)
+
+Over the last 15 years the strategy delivered far higher returns at roughly the
+*same Sharpe* as buy & hold — 3× above the MA earned 28% a year at Sharpe 0.81,
+versus buy & hold's 15% at 0.79 — the calmest stretch for the approach, since
+sustained bear markets were brief.
 
 ---
 
