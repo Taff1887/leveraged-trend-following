@@ -1,0 +1,161 @@
+{
+  "data": {
+    "underlying_ticker": "^SP500TR",
+    "underlying_source": "Yahoo Finance ^SP500TR (true daily total return)",
+    "underlying_start": "1988-01-04",
+    "underlying_end": "2026-06-08",
+    "n_days": 9679,
+    "years": 38.4087,
+    "risk_free_source": "Yahoo ^IRX (13-week T-bill)"
+  },
+  "part1_buy_and_hold": {
+    "name": "Buy & Hold S&P 500 TR",
+    "n_days": 9679.0,
+    "years": 38.4087,
+    "total_return": 63.6582,
+    "cagr": 0.1147,
+    "volatility": 0.1787,
+    "sharpe": 0.5356,
+    "sortino": 0.7566,
+    "max_drawdown": -0.5525,
+    "calmar": 0.2075,
+    "worst_day": -0.1198,
+    "best_day": 0.1158,
+    "worst_month": -0.168,
+    "best_month": 0.1282,
+    "pct_positive_days": 0.5449,
+    "pct_positive_months": 0.6602,
+    "n_switches": 0.0
+  },
+  "part2_ma_to_cash_200d": {
+    "name": "MA->Cash (200d)",
+    "n_days": 9480.0,
+    "years": 37.619,
+    "total_return": 37.282,
+    "cagr": 0.1017,
+    "volatility": 0.1176,
+    "sharpe": 0.6434,
+    "sortino": 0.8932,
+    "max_drawdown": -0.2055,
+    "calmar": 0.4951,
+    "worst_day": -0.0687,
+    "best_day": 0.0512,
+    "worst_month": -0.1066,
+    "best_month": 0.1095,
+    "pct_positive_days": 0.645,
+    "pct_positive_months": 0.6887,
+    "n_switches": 224.0,
+    "window": 200.0,
+    "leverage_below": 0.0,
+    "strategy": "ma_to_cash"
+  },
+  "part3_leveraged_200d": {
+    "1x": {
+      "cagr": 0.1142,
+      "volatility": 0.1787,
+      "sharpe": 0.537,
+      "max_drawdown": -0.5525,
+      "calmar": 0.2067
+    },
+    "1.25x": {
+      "cagr": 0.1156,
+      "volatility": 0.2052,
+      "sharpe": 0.4986,
+      "max_drawdown": -0.6356,
+      "calmar": 0.1819
+    },
+    "1.5x": {
+      "cagr": 0.1157,
+      "volatility": 0.2336,
+      "sharpe": 0.4653,
+      "max_drawdown": -0.707,
+      "calmar": 0.1637
+    },
+    "2x": {
+      "cagr": 0.1121,
+      "volatility": 0.2937,
+      "sharpe": 0.4134,
+      "max_drawdown": -0.8303,
+      "calmar": 0.135
+    },
+    "2.5x": {
+      "cagr": 0.1034,
+      "volatility": 0.3563,
+      "sharpe": 0.3764,
+      "max_drawdown": -0.9151,
+      "calmar": 0.113
+    },
+    "3x": {
+      "cagr": 0.0896,
+      "volatility": 0.4204,
+      "sharpe": 0.3492,
+      "max_drawdown": -0.9612,
+      "calmar": 0.0932
+    }
+  },
+  "part4_beats_all_count_gross": 0,
+  "part4_beats_cagr_count_gross": 25,
+  "part4_beats_sharpe_count_gross": 0,
+  "part4_beats_all_count_net": 0,
+  "part4_beats_cagr_count_net": 9,
+  "part4_beats_sharpe_count_net": 0,
+  "part4_best_net": {
+    "by_sharpe": {
+      "name": "Lev 1.25x below (100d)",
+      "sharpe": 0.4967,
+      "cagr": 0.1159,
+      "max_dd": -0.6402
+    },
+    "by_calmar": {
+      "name": "Lev 1.25x below (50d)",
+      "calmar": 0.1882,
+      "cagr": 0.1157,
+      "max_dd": -0.6151
+    }
+  },
+  "part5_periods_leverage_helped_frac": 0.3333,
+  "part6_etf_tracking": [
+    {
+      "etf": "SSO",
+      "leverage": 2.0,
+      "realized_beta": 1.948,
+      "tracking_error_ann": 0.0379,
+      "gap_costed_minus_etf": 0.0035
+    },
+    {
+      "etf": "UPRO",
+      "leverage": 3.0,
+      "realized_beta": 2.967,
+      "tracking_error_ann": 0.0314,
+      "gap_costed_minus_etf": 0.0058
+    },
+    {
+      "etf": "SPXL",
+      "leverage": 3.0,
+      "realized_beta": 2.928,
+      "tracking_error_ann": 0.0456,
+      "gap_costed_minus_etf": 0.0064
+    }
+  ],
+  "part7_sp_like_point": {
+    "drift": 0.11,
+    "vol": 0.18,
+    "median_cagr_by_leverage": {
+      "1x": 0.0993,
+      "1.25x": 0.1199,
+      "1.5x": 0.1386,
+      "2x": 0.1696,
+      "2.5x": 0.1919,
+      "3x": 0.2044
+    },
+    "prob_beat_1x_by_leverage": {
+      "1x": 0.0,
+      "1.25x": 0.9039,
+      "1.5x": 0.8891,
+      "2x": 0.8592,
+      "2.5x": 0.8257,
+      "3x": 0.7848
+    }
+  },
+  "part7_sp_like_optimal_leverage": 3.0
+}

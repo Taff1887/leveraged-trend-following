@@ -1,0 +1,11 @@
+ticker,role,leverage,first_date,last_date,n_observations,missing_business_days,duplicates_removed,interior_filled,kind,source,note
+^GSPC,context,1.0,1927-12-30,2026-06-08,24725,957,0,0,Price only (no dividends),Yahoo Finance,S&P 500 price index (NO dividends). Long history ~1927+. Context only.
+SPXL,leveraged,3.0,2008-11-05,2026-06-08,4423,166,0,0,Adjusted price (=TR),Yahoo Finance,"Direxion Daily S&P 500 Bull 3X, daily 3x. 2008+."
+SSO,leveraged,2.0,2006-06-21,2026-06-08,5022,187,0,0,Adjusted price (=TR),Yahoo Finance,"ProShares Ultra S&P500, daily 2x. 2006+."
+UPRO,leveraged,3.0,2009-06-25,2026-06-08,4264,159,0,0,Adjusted price (=TR),Yahoo Finance,"ProShares UltraPro S&P500, daily 3x. 2009+."
+IVV,proxy_1x,1.0,2000-05-19,2026-06-08,6551,246,0,0,Adjusted price (=TR),Yahoo Finance,"iShares Core S&P 500 ETF, 1x. 2000+."
+SPLG,proxy_1x,1.0,2009-01-02,2026-06-08,4383,164,0,0,Adjusted price (=TR),Yahoo Finance,"SPDR Portfolio S&P 500 ETF, 1x. 2005+."
+SPY,proxy_1x,1.0,1993-01-29,2026-06-08,8396,306,0,0,Adjusted price (=TR),Yahoo Finance,"SPDR S&P 500 ETF, 1x. Adjusted close = total return. 1993+."
+VOO,proxy_1x,1.0,2010-09-09,2026-06-08,3960,148,0,0,Adjusted price (=TR),Yahoo Finance,"Vanguard S&P 500 ETF, 1x. 2010+."
+^IRX,rf,0.0,1960-01-04,2026-06-08,16622,709,0,0,Interest rate (%),Yahoo Finance,13-week US T-bill discount rate (annualized %). Used for cash + financing.
+^SP500TR,underlying,1.0,1988-01-04,2026-06-08,9680,346,0,0,Total return,Yahoo Finance,"S&P 500 Total Return index (dividends reinvested). True daily TR, ~1988+."
