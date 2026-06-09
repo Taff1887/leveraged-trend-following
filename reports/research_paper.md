@@ -139,38 +139,12 @@ while higher still would have bled toward zero.
 
 ---
 
-## 5. The switching strategy: buy leverage low, sell high
+## 5. The switching strategy: leverage the uptrend
 
-Use the 200-day MA to switch between leveraged and ordinary exposure. The
-intuitive version — motivated by the bought-the-low returns in §3 — is to **buy
-leverage when the market is low** (below the MA, "on sale") and drop back to plain
-1× when it is high (above the MA). Daily total return, 1928–2026, net of costs:
-
-| Strategy | Grew $1 to | CAGR | Vol | Sharpe | Sortino | Max DD | Calmar |
-|---|---|---|---|---|---|---|---|
-| Buy & Hold 1× | $13,021 | 10.1% | 18.9% | 0.40 | 0.56 | −83.9% | 0.12 |
-| MA200 → Cash | $33,090 | 11.3% | 12.6% | **0.60** | **0.84** | **−46.2%** | **0.24** |
-| Lev 1.5× below MA | $1,635 | 7.9% | 24.7% | 0.27 | 0.38 | −94.3% | 0.08 |
-| Lev 2× below MA | $217 | 5.7% | 31.0% | 0.21 | 0.29 | −98.2% | 0.06 |
-| Lev 3× below MA | **$0.79** | −0.2% | 44.3% | 0.13 | 0.19 | −99.9% | −0.00 |
-
-![Buy leverage low (below the MA)](../charts/F6_below_equity.png)
-![Drawdowns](../charts/F6_below_drawdowns.png)
-
-Buying leverage low gets **worse** as leverage rises — 1.5× below trails buy &
-hold, 2× below turns $1 into $217 (vs $13,021), and 3× below actually *loses
-money* ($1 → $0.79) with a −99.9% drawdown. The reason: the 200-day MA does not
-buy the bottom. It flags "below trend" at the *start* of a decline, when the
-market is highly volatile and often still falling (1929, 2000–02, 2008) — exactly
-where volatility decay is worst.
-
----
-
-## 6. The other way round: leverage the uptrend
-
-So we check the opposite switch — **leverage when the market is ABOVE the MA**
-(the calm, rising regime) and drop to plain 1× when it falls below. Same data,
-same costs:
+Use the 200-day MA to switch between leveraged and ordinary exposure: **hold L×
+leverage while the market is ABOVE the MA** — the calm, rising regime where the
+kind of one-directional gains seen in §3 actually happen — and drop back to plain
+1× while it is below. Daily total return, 1928–2026, net of costs:
 
 | Strategy | Grew $1 to | CAGR | Vol | Sharpe | Sortino | Max DD | Calmar |
 |---|---|---|---|---|---|---|---|
@@ -183,15 +157,12 @@ same costs:
 ![Leverage the uptrend (above the MA)](../charts/F4_inverted_equity.png)
 ![Drawdowns](../charts/F4_inverted_drawdowns.png)
 
-Leveraging the uptrend gets **better** as leverage rises, beating buy & hold on
-CAGR, Sharpe, Sortino and Calmar at every level — though its maximum drawdown is
-deeper than buy & hold (you are leveraged going *into* fast crashes), and it does
-not beat the plain move-to-cash rule on a risk-adjusted basis.
-
-It is the same idea pointed in opposite directions. At 2×, the two versions differ
-by a factor of ~1,800× in final wealth ($402,863 above vs $217 below):
-
-![Above vs below the MA](../charts/F4_direction_comparison.png)
+Leveraging the uptrend gets **better** as leverage rises — $1 grows to $402,863 at
+2× and $6.4M at 3× (versus $13,021 for buy & hold) — and it beats buy & hold on
+CAGR, Sharpe, Sortino and Calmar at every level. The trade-off: its maximum
+drawdown is deeper than buy & hold's (you are leveraged going *into* fast
+crashes), and it does not beat the plain move-to-cash rule on a risk-adjusted
+basis.
 
 ---
 
