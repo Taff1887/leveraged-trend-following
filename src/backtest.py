@@ -242,6 +242,50 @@ def leveraged_above_ma(prices: pd.Series, underlying_returns: pd.Series,
     return res
 
 
+def leverage_to_cash(prices: pd.Series, underlying_returns: pd.Series,
+                     window: int, leverage: float, rf_daily=0.0,
+                     costs: dict | None = None) -> StrategyResult:
+    """Leverage the uptrend, then go fully to CASH below the MA.
+
+    Above the MA: hold ``leverage``x S&P. Below the MA: hold cash (T-bills) — so
+    the strategy completely sidesteps the big below-trend drawdowns, instead of
+    riding them at 1x. exposure is ``leverage`` (above) or 0 (cash, below).
+    """
+    sig = lagged_signal(prices, window)
+    exposure = sig.map({1.0: leverage, 0.0: 0.0})
+    res = run_exposure_strategy(underlying_returns, exposure, rf_daily, costs,
+                                name=f"Lev {leverage:g}x above->cash ({window}d)")
+    res.meta.update({"window": window, "leverage_above": leverage,
+                     "strategy": "leverage_to_cash"})
+    return res
+
+
+def three_tier_strategy(prices: pd.Series, underlying_returns: pd.Series,
+                        leverage: float, slow_window: int = 200,
+                        fast_window: int = 63, rf_daily=0.0,
+                        costs: dict | None = None) -> StrategyResult:
+    """A three-state "Leverage -> S&P -> Cash" rule using a fast (3-month) MA and
+    a slow (200-day) MA:
+
+        * above BOTH MAs           -> ``leverage``x  (strong uptrend)
+        * above slow, below fast   -> 1x S&P         (mild pullback)
+        * below the slow MA        -> cash           (real downtrend)
+
+    Both signals are lagged one day (no look-ahead).
+    """
+    slow = lagged_signal(prices, slow_window)
+    fast = lagged_signal(prices, fast_window)
+    df = pd.concat([slow.rename("s"), fast.rename("f")], axis=1).dropna()
+    exposure = pd.Series(1.0, index=df.index)          # default: 1x
+    exposure[df["s"] == 0.0] = 0.0                      # below slow -> cash
+    exposure[(df["s"] == 1.0) & (df["f"] == 1.0)] = leverage  # above both -> leverage
+    res = run_exposure_strategy(underlying_returns, exposure, rf_daily, costs,
+                                name=f"3-tier {leverage:g}x ({fast_window}/{slow_window}d)")
+    res.meta.update({"slow_window": slow_window, "fast_window": fast_window,
+                     "leverage_above": leverage, "strategy": "three_tier"})
+    return res
+
+
 def always_leveraged(underlying_returns: pd.Series, leverage: float,
                      rf_daily=0.0, costs: dict | None = None) -> StrategyResult:
     """A reference: hold ``leverage``x every single day (the naive HFEA-style bet).

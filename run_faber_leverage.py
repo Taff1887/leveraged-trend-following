@@ -25,6 +25,7 @@ Run:  python run_faber_leverage.py
 from __future__ import annotations
 
 import json
+import re
 import warnings
 
 import matplotlib
@@ -80,6 +81,49 @@ def period_metrics(name, returns, rf, start, tag=None):
     r = returns[returns.index >= pd.Timestamp(start)].dropna()
     rfx = rf.reindex(r.index) if hasattr(rf, "reindex") else rf
     return metrics_row(name, r, rfx, 252, {"strategy": tag} if tag else None)
+
+
+# The leverage levels we test everywhere (no 2.5x).
+LEVS = [1.5, 2.0, 3.0, 5.0]
+
+# Per-leverage colours so the same level looks the same across every chart.
+_LEVCOL = {"1.5": "#ff7f0e", "2": "#d62728", "3": "#9467bd", "5": "#8c564b"}
+
+
+def color_for(name: str):
+    """Pick a consistent colour for a strategy by its name / leverage level."""
+    if name.startswith("Buy & Hold"):
+        return config.COLORS["buy_hold"]
+    m = re.search(r"(\d+(?:\.\d+)?)x", name)
+    if m and m.group(1) in _LEVCOL:
+        return _LEVCOL[m.group(1)]
+    if "Cash" in name:
+        return config.COLORS["ma_cash"]
+    return None
+
+
+def strat_table(strats: dict, rf_d) -> pd.DataFrame:
+    """Metrics table for a dict of {name: daily net-return Series}."""
+    rows = []
+    for name, r in strats.items():
+        r = r.dropna()
+        rfx = rf_d.reindex(r.index)
+        rows.append({"name": name,
+                     "grew_1dollar_to": float((1.0 + r).prod()),
+                     "cagr": mx.cagr(r), "volatility": mx.annual_volatility(r),
+                     "sharpe": mx.sharpe_ratio(r, rfx),
+                     "sortino": mx.sortino_ratio(r, rfx),
+                     "max_drawdown": mx.max_drawdown(r),
+                     "calmar": mx.calmar_ratio(r)})
+    return pd.DataFrame(rows)
+
+
+def equity_chart(strats: dict, title: str, fname: str, styles: dict | None = None):
+    """Equity-curve chart for a dict of {name: net-return Series}, $-axis."""
+    curves = {name: rt.cumulative_index(r.dropna()) for name, r in strats.items()}
+    colors = {name: color_for(name) for name in strats}
+    fig = pl.plot_equity_comparison(curves, title, fname, colors=colors, styles=styles)
+    save_chart(fig, fname)
 
 
 # ===========================================================================
@@ -150,8 +194,8 @@ def step1_baseline(daily_idx, rf_d):
 # Step 2: daily leverage on the index
 # ===========================================================================
 def step2_leverage_index(daily_idx, u, rf_d, bh, ma):
-    print("[step 2] daily leverage on the index (1.5x / 2.5x / 3x) ...")
-    levs = [1.5, 2.5, 3.0]
+    print("[step 2] daily leverage on the index (constant) ...")
+    levs = LEVS
     results = {L: bt.always_leveraged(u, L, rf_daily=rf_d, costs=config.DEFAULT_COSTS)
                for L in levs}
     rows = [metrics_row("Buy & Hold 1x", bh.net_returns, rf_d, 252),
@@ -350,7 +394,7 @@ def step5_event_studies(daily_idx, u):
                ("2018 Q4 selloff", "2018-10-01", "2019-01-31"),
                ("COVID bottom (2020)", "2020-02-01", "2020-07-31"),
                ("2025 tariff selloff", "2025-01-01", "2025-12-31")]
-    levs = [1.0, 1.5, 2.0, 3.0]
+    levs = [1.0] + LEVS
     horizons = [("6mo", 126), ("1yr", 252), ("3yr", 756)]
 
     rows = []
@@ -376,9 +420,11 @@ def step5_event_studies(daily_idx, u):
     if len(one):
         pl.setup_style()
         fig, ax = plt.subplots(figsize=(11, 5.8))
-        x = np.arange(len(one)); width = 0.2
+        x = np.arange(len(one)); n = len(levs); width = 0.8 / n
         for i, L in enumerate(levs):
-            ax.bar(x + (i - 1.5) * width, one[f"{L:g}x"] * 100, width, label=f"{L:g}x")
+            off = (i - (n - 1) / 2.0) * width
+            ax.bar(x + off, one[f"{L:g}x"] * 100, width, label=f"{L:g}x",
+                   color=color_for(f"{L:g}x"))
         ax.set_xticks(x); ax.set_xticklabels(one["event"], fontsize=9)
         ax.set_ylabel("1-year forward total return (%)")
         ax.axhline(0, color="black", lw=0.8)
@@ -393,55 +439,96 @@ def step5_event_studies(daily_idx, u):
         for r in rows if r["horizon"] == "1yr"}
 
 
-# ===========================================================================
-# Step 6: starting from a single date (and shorter recent windows)
-# ===========================================================================
-def step6_start_dates(daily_idx, u, rf_d):
-    """Grow $1 under each strategy from chosen start dates, and chart the last
-    ~26 years (from 22 Aug 2000) and the last 15 years."""
-    print("[step 6] start-date / recent-window analysis ...")
-    # The standard strategy set: baselines + leverage-the-uptrend (net of costs).
-    bh = bt.buy_and_hold(u, rf_daily=rf_d, name="Buy & Hold 1x")
-    ma = bt.ma_to_cash(daily_idx, u, 200, rf_daily=rf_d)
-    strat = {"Buy & Hold 1x": bh.net_returns, "MA200 -> Cash": ma.net_returns}
-    for L in (1.5, 2.0, 3.0):
+def table_to_headline(t: pd.DataFrame) -> dict:
+    return {row["name"]: {"grew_1dollar_to": r4(row["grew_1dollar_to"]),
+                          "cagr": r4(row["cagr"]), "volatility": r4(row["volatility"]),
+                          "sharpe": r4(row["sharpe"]), "sortino": r4(row["sortino"]),
+                          "max_drawdown": r4(row["max_drawdown"]), "calmar": r4(row["calmar"])}
+            for _, row in t.iterrows()}
+
+
+def _uptrend_strategies(daily_idx, u, rf_d):
+    """Baselines + leverage-the-uptrend (above MA, 1x below), net of costs."""
+    strat = {"Buy & Hold 1x": bt.buy_and_hold(u, rf_daily=rf_d, name="Buy & Hold 1x").net_returns,
+             "MA200 -> Cash": bt.ma_to_cash(daily_idx, u, 200, rf_daily=rf_d).net_returns}
+    for L in LEVS:
         strat[f"Lev {L:g}x above MA"] = bt.leveraged_above_ma(
             daily_idx, u, 200, L, rf_daily=rf_d, costs=config.DEFAULT_COSTS).net_returns
+    return strat
 
+
+# ===========================================================================
+# Step 6: performance over recent horizons (last 50 / 30 / 15 years)
+# ===========================================================================
+def step6_horizons(daily_idx, u, rf_d):
+    print("[step 6] recent horizons (50 / 30 / 15 years) ...")
+    strat = _uptrend_strategies(daily_idx, u, rf_d)
     last = u.index.max()
-    windows = [
-        ("from 22 Aug 2000 (~26 years)", "2000-08-22", "F7_since_2000.png"),
-        ("last 15 years", str((last - pd.Timedelta(days=365 * 15)).date()), "F8_last_15y.png"),
-    ]
-    # Distinct colour per line so none collide on the chart.
-    cmap = {"Buy & Hold 1x": config.COLORS["buy_hold"],
-            "MA200 -> Cash": config.COLORS["ma_cash"],
-            "Lev 1.5x above MA": config.COLORS["accent"],
-            "Lev 2x above MA": config.COLORS["leveraged"],
-            "Lev 3x above MA": config.COLORS["neutral"]}
-    rows = []
-    for label, start, fname in windows:
-        curves = {}
-        for name, r in strat.items():
-            rr = r[r.index >= pd.Timestamp(start)].dropna()
-            curves[name] = rt.cumulative_index(rr)
-            rfx = rf_d.reindex(rr.index)
-            rows.append({"window": label, "start": start, "strategy": name,
-                         "grew_1dollar_to": float((1.0 + rr).prod()),
-                         "cagr": mx.cagr(rr), "sharpe": mx.sharpe_ratio(rr, rfx),
-                         "max_drawdown": mx.max_drawdown(rr)})
-        fig = pl.plot_equity_comparison(curves, f"Growth of one dollar -- {label}",
-                                        fname, colors=cmap)
-        save_chart(fig, fname)
+    windows = [("last 50 years", 50, "F7_last_50y.png"),
+               ("last 30 years", 30, "F8_last_30y.png"),
+               ("last 15 years", 15, "F9_last_15y.png")]
+    tables, headline = [], {}
+    for label, yrs, fname in windows:
+        start = last - pd.Timedelta(days=365 * yrs)
+        sub = {n: r[r.index >= start] for n, r in strat.items()}
+        t = strat_table(sub, rf_d); t.insert(0, "window", label)
+        tables.append(t)
+        equity_chart(sub, f"Growth of one dollar -- {label}", fname)
+        headline[label] = table_to_headline(t)
+    save_table(pd.concat(tables, ignore_index=True), "faber_step6_horizons.csv")
+    H["step6_horizons"] = headline
 
-    tbl = pd.DataFrame(rows)
-    save_table(tbl, "faber_step6_start_dates.csv")
-    H["step6_start_dates"] = {
-        w: {row["strategy"]: {"grew_1dollar_to": r4(row["grew_1dollar_to"]),
-                              "cagr": r4(row["cagr"]), "sharpe": r4(row["sharpe"]),
-                              "max_drawdown": r4(row["max_drawdown"])}
-            for _, row in tbl[tbl["window"] == w].iterrows()}
-        for w in tbl["window"].unique()}
+
+# ===========================================================================
+# Step 7: leverage the uptrend, CASH below the MA (avoid downturns)
+# ===========================================================================
+def step7_leverage_to_cash(daily_idx, u, rf_d):
+    print("[step 7] leverage above the MA, cash below ...")
+    strat = {"Buy & Hold 1x": bt.buy_and_hold(u, rf_daily=rf_d, name="Buy & Hold 1x").net_returns,
+             "MA200 -> Cash": bt.ma_to_cash(daily_idx, u, 200, rf_daily=rf_d).net_returns}
+    for L in LEVS:
+        strat[f"Lev {L:g}x above->cash"] = bt.leverage_to_cash(
+            daily_idx, u, 200, L, rf_daily=rf_d, costs=config.DEFAULT_COSTS).net_returns
+    t = strat_table(strat, rf_d); save_table(t, "faber_step7_leverage_to_cash.csv")
+    equity_chart(strat, "Leverage above the 200-day MA, CASH below (1928+, net)",
+                 "F10_leverage_to_cash.png")
+    H["step7_leverage_to_cash"] = table_to_headline(t)
+
+
+# ===========================================================================
+# Step 8: 3-tier (leverage -> S&P -> cash) using a 3-month + 200-day MA
+# ===========================================================================
+def step8_three_tier(daily_idx, u, rf_d):
+    print("[step 8] 3-tier: leverage / S&P / cash (3-month + 200-day MA) ...")
+    strat = {"Buy & Hold 1x": bt.buy_and_hold(u, rf_daily=rf_d, name="Buy & Hold 1x").net_returns,
+             "MA200 -> Cash": bt.ma_to_cash(daily_idx, u, 200, rf_daily=rf_d).net_returns}
+    for L in LEVS:
+        strat[f"3-tier {L:g}x"] = bt.three_tier_strategy(
+            daily_idx, u, L, 200, 63, rf_daily=rf_d, costs=config.DEFAULT_COSTS).net_returns
+    t = strat_table(strat, rf_d); save_table(t, "faber_step8_three_tier.csv")
+    equity_chart(strat, "3-tier: leverage / S&P / cash (3-month + 200-day MA, net)",
+                 "F11_three_tier.png")
+    H["step8_three_tier"] = table_to_headline(t)
+
+
+# ===========================================================================
+# Step 9: does the MA switch add value over constant leverage?
+# ===========================================================================
+def step9_constant_vs_switch(daily_idx, u, rf_d):
+    print("[step 9] constant leverage vs MA-switched leverage ...")
+    strat = {"Buy & Hold 1x": bt.buy_and_hold(u, rf_daily=rf_d, name="Buy & Hold 1x").net_returns}
+    styles = {"Buy & Hold 1x": "-"}
+    for L in LEVS:
+        strat[f"Always {L:g}x (constant)"] = bt.always_leveraged(
+            u, L, rf_daily=rf_d, costs=config.DEFAULT_COSTS).net_returns
+        strat[f"Lev {L:g}x above MA"] = bt.leveraged_above_ma(
+            daily_idx, u, 200, L, rf_daily=rf_d, costs=config.DEFAULT_COSTS).net_returns
+        styles[f"Always {L:g}x (constant)"] = ":"     # constant = dotted
+        styles[f"Lev {L:g}x above MA"] = "-"          # MA-switch = solid
+    t = strat_table(strat, rf_d); save_table(t, "faber_step9_constant_vs_switch.csv")
+    equity_chart(strat, "Constant leverage (dotted) vs MA-switched leverage (solid), net",
+                 "F12_constant_vs_switch.png", styles=styles)
+    H["step9_constant_vs_switch"] = table_to_headline(t)
 
 
 # ===========================================================================
@@ -449,7 +536,7 @@ def step6_start_dates(daily_idx, u, rf_d):
 # ===========================================================================
 def step4_inverted(daily_idx, u, rf_d, bh, ma):
     print("[step 4] inverted strategy: leverage ABOVE the MA, 1x below ...")
-    levs = [1.5, 2.0, 3.0]
+    levs = LEVS
     rows = [metrics_row("Buy & Hold 1x", bh.net_returns, rf_d, 252,
                         {"strategy": "buy_hold"}),
             metrics_row("MA200 -> Cash", ma.net_returns, rf_d, 252,
@@ -583,8 +670,11 @@ def main():
     step3b_breakeven_chart(u, rf_d)
     step3c_zero_return_map(u)
     step5_event_studies(daily_idx, u)
-    step6_start_dates(daily_idx, u, rf_d)
     step4_inverted(daily_idx, u, rf_d, bh, ma)
+    step6_horizons(daily_idx, u, rf_d)
+    step7_leverage_to_cash(daily_idx, u, rf_d)
+    step8_three_tier(daily_idx, u, rf_d)
+    step9_constant_vs_switch(daily_idx, u, rf_d)
 
     with open(config.RESULTS_DIR / "headline_faber.json", "w") as f:
         json.dump(H, f, indent=2, default=str)

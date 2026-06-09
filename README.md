@@ -53,7 +53,8 @@ S&P 500 daily total return, **1928–2026, net of costs** (fees + financing + tu
 | MA200 → Cash (Faber) | $33,090 | 11.3% | 12.6% | **0.60** | **0.84** | **−46.2%** | **0.24** |
 | Lev 1.5× above MA | $55,471 | 11.9% | 23.6% | 0.43 | 0.60 | −85.7% | 0.14 |
 | Lev 2× above MA | $402,863 | 14.2% | 28.9% | 0.47 | 0.66 | −89.2% | 0.16 |
-| Lev 3× above MA | **$6,429,403** | **17.5%** | 40.4% | 0.50 | 0.71 | −95.7% | 0.18 |
+| Lev 3× above MA | $6,429,403 | 17.5% | 40.4% | 0.50 | 0.71 | −95.7% | 0.18 |
+| Lev 5× above MA | **$11,648,321** | **18.2%** | 64.7% | 0.53 | 0.74 | −99.9% | 0.18 |
 
 <p align="center"><img src="charts/F4_inverted_equity.png" width="82%"></p>
 
@@ -64,32 +65,61 @@ volatility, still falling), not at the bottom — exactly where leverage hurts m
 
 ---
 
-## Starting more recently
+## Is it the switch, or just leverage?
 
-**$1 invested on 22 August 2000** (just before the dot-com crash — an unkind start), to today:
+Holding each leverage level *constantly* (dotted) vs only **above the MA** (solid).
+The switch wins on CAGR, Sharpe **and** drawdown at every level — constant 5× was
+**wiped out** in 1987, while switched 5× grew $1 to $11.6M:
 
-| Strategy | Grew $1 to | CAGR | Sharpe | Max DD |
-|---|---|---|---|---|
-| Buy & Hold 1× | $7.97 | 8.4% | 0.42 | −55% |
-| MA200 → Cash | $7.24 | 8.0% | **0.59** | **−21%** |
-| Lev 1.5× above MA | $11.52 | 10.0% | 0.45 | −59% |
-| Lev 2× above MA | $18.51 | 12.0% | 0.49 | −63% |
-| Lev 3× above MA | **$37.43** | **15.1%** | 0.52 | −70% |
+| | Grew $1 to | Sharpe | Max DD |
+|---|---|---|---|
+| Always 2× (constant) | $23,866 | 0.36 | −99% |
+| **Lev 2× above MA** | $402,863 | 0.47 | −89% |
+| Always 5× (constant) | **$0 (wiped out)** | 0.36 | −100% |
+| **Lev 5× above MA** | $11,648,321 | 0.53 | −99.9% |
 
-<p align="center"><img src="charts/F7_since_2000.png" width="82%"></p>
+<p align="center"><img src="charts/F12_constant_vs_switch.png" width="82%"></p>
 
-**Last 15 years** — leverage-the-uptrend delivered far higher returns at roughly
-the *same Sharpe* as buy & hold (3× above: 28%/yr at Sharpe 0.81 vs buy & hold's
-15% at 0.79):
+## Variants that sidestep the downturns
 
-| Strategy | Grew $1 to | CAGR | Sharpe | Max DD |
-|---|---|---|---|---|
-| Buy & Hold 1× | $7.68 | 14.6% | 0.79 | −34% |
-| MA200 → Cash | $4.68 | 10.9% | 0.81 | −18% |
-| Lev 2× above MA | $18.59 | 21.6% | 0.81 | −46% |
-| Lev 3× above MA | **$41.07** | **28.2%** | 0.81 | −56% |
+Going to **cash** below the MA (instead of 1×) raises returns *and* shallows the
+drawdown; a **3-tier** rule (leverage → S&P → cash, using a 3-month + 200-day MA)
+gets the closest of any leveraged variant to plain MA→cash on risk-adjusted terms:
 
-<p align="center"><img src="charts/F8_last_15y.png" width="82%"></p>
+| Strategy | Grew $1 to | CAGR | Vol | Sharpe | Max DD | Calmar |
+|---|---|---|---|---|---|---|
+| Lev 2× above → **cash** | $1,023,603 | 15.3% | 25.3% | 0.53 | −75% | 0.20 |
+| **3-tier** 1.5× | $87,949 | 12.4% | 17.4% | 0.53 | −58% | 0.21 |
+| **3-tier** 2× | $398,471 | 14.2% | 22.5% | 0.53 | −68% | 0.21 |
+
+<p align="center">
+<img src="charts/F10_leverage_to_cash.png" width="49%">
+<img src="charts/F11_three_tier.png" width="49%">
+</p>
+
+---
+
+## Over recent horizons (last 50 / 30 / 15 years)
+
+Same leverage-the-uptrend strategy, net of costs (volatility shown so Sharpe is
+checkable). It earns far higher compound returns at roughly the **same Sharpe** as
+buy & hold across every window.
+
+**Last 15 years** ($1 invested):
+
+| Strategy | Grew $1 to | CAGR | Vol | Sharpe | Max DD | Calmar |
+|---|---|---|---|---|---|---|
+| Buy & Hold 1× | $7.7 | 14.6% | 17.3% | 0.79 | −34% | 0.43 |
+| MA200 → Cash | $4.7 | 10.9% | 11.8% | 0.81 | **−18%** | **0.61** |
+| Lev 2× above MA | $18.6 | 21.6% | 26.7% | 0.81 | −46% | 0.47 |
+| Lev 3× above MA | $41.1 | 28.2% | 37.5% | 0.81 | −56% | 0.50 |
+| Lev 5× above MA | **$104.7** | **36.5%** | 60.1% | 0.80 | −72% | 0.51 |
+
+<p align="center"><img src="charts/F9_last_15y.png" width="82%"></p>
+
+Over the **last 50 years**, $1 → $257 (buy-hold) vs **$14,644** (5× above MA); over
+the **last 30 years**, $19 vs **$209**. Full tables and charts (`F7_last_50y`,
+`F8_last_30y`) are in the [paper](reports/research_paper.md) §9.
 
 ---
 

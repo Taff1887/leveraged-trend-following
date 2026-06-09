@@ -123,24 +123,50 @@ def plot_ma_signal(prices: pd.Series, window: int, filename: str,
 # ---------------------------------------------------------------------------
 # Equity-curve comparison
 # ---------------------------------------------------------------------------
+def dollar_log_yaxis(ax) -> None:
+    """Label a log y-axis with dollar amounts ($1, $10, $100, ... ) instead of
+    10^1, 10^2. Minor ticks are left unlabelled."""
+    import matplotlib.ticker as mticker
+
+    def _fmt(y, _pos):
+        if y <= 0:
+            return ""
+        if y < 1:
+            return f"${y:g}"
+        return f"${y:,.0f}"
+
+    ax.yaxis.set_major_locator(mticker.LogLocator(base=10))
+    ax.yaxis.set_major_formatter(mticker.FuncFormatter(_fmt))
+    ax.yaxis.set_minor_formatter(mticker.NullFormatter())
+
+
 def plot_equity_comparison(equity_dict: dict, title: str, filename: str,
-                           log: bool = True, colors: dict | None = None) -> plt.Figure:
-    """Compare several strategies' equity curves on one chart."""
+                           log: bool = True, colors: dict | None = None,
+                           styles: dict | None = None) -> plt.Figure:
+    """Compare several strategies' equity curves on one chart.
+
+    ``styles`` optionally maps a name -> a line style (e.g. '--') so two related
+    curves (say constant 2x vs MA-switched 2x) can share a colour but differ in
+    dash pattern.
+    """
     setup_style()
     fig, ax = plt.subplots(figsize=(11, 5.5))
     for name, eq in equity_dict.items():
         eq = eq.dropna()
         rebased = eq / eq.iloc[0]
         c = (colors or {}).get(name)
-        ax.plot(rebased.index, rebased.values, label=name, linewidth=1.5, color=c)
+        ls = (styles or {}).get(name, "-")
+        ax.plot(rebased.index, rebased.values, label=name, linewidth=1.5,
+                color=c, linestyle=ls)
     if log:
         ax.set_yscale("log")
-        ax.set_ylabel("Growth of $1 (log scale)")
+        ax.set_ylabel("Growth of $1 invested (log scale)")
+        dollar_log_yaxis(ax)
     else:
-        ax.set_ylabel("Growth of $1")
+        ax.set_ylabel("Growth of $1 invested")
     ax.set_title(title)
     ax.set_xlabel("Date")
-    ax.legend(loc="upper left")
+    ax.legend(loc="upper left", fontsize=8)
     return fig
 
 

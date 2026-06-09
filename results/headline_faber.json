@@ -62,8 +62,9 @@
   },
   "step2_leverage_index": {
     "always_1.5x_cagr": 0.1046,
-    "always_2.5x_cagr": 0.1015,
-    "always_3x_cagr": 0.0843
+    "always_2x_cagr": 0.1082,
+    "always_3x_cagr": 0.0843,
+    "always_5x_cagr": NaN
   },
   "step3_surfaces": {
     "sp_excess_drift": 0.074,
@@ -82,91 +83,29 @@
       "1x": 0.7229,
       "1.5x": 1.2182,
       "2x": 1.82,
-      "3x": 3.3894
+      "3x": 3.3894,
+      "5x": 8.1639
     },
     "2018 Q4 selloff (1yr)": {
       "1x": 0.3989,
       "1.5x": 0.6433,
       "2x": 0.9217,
-      "3x": 1.5925
+      "3x": 1.5925,
+      "5x": 3.4702
     },
     "COVID bottom (2020) (1yr)": {
       "1x": 0.778,
       "1.5x": 1.3188,
       "2x": 1.9803,
-      "3x": 3.7154
+      "3x": 3.7154,
+      "5x": 8.9407
     },
     "2025 tariff selloff (1yr)": {
       "1x": 0.3855,
       "1.5x": 0.6145,
       "2x": 0.8693,
-      "3x": 1.4588
-    }
-  },
-  "step6_start_dates": {
-    "from 22 Aug 2000 (~26 years)": {
-      "Buy & Hold 1x": {
-        "grew_1dollar_to": 7.9652,
-        "cagr": 0.084,
-        "sharpe": 0.4238,
-        "max_drawdown": -0.5525
-      },
-      "MA200 -> Cash": {
-        "grew_1dollar_to": 7.2443,
-        "cagr": 0.08,
-        "sharpe": 0.5895,
-        "max_drawdown": -0.2055
-      },
-      "Lev 1.5x above MA": {
-        "grew_1dollar_to": 11.5213,
-        "cagr": 0.0996,
-        "sharpe": 0.4526,
-        "max_drawdown": -0.5897
-      },
-      "Lev 2x above MA": {
-        "grew_1dollar_to": 18.5052,
-        "cagr": 0.1201,
-        "sharpe": 0.4887,
-        "max_drawdown": -0.6278
-      },
-      "Lev 3x above MA": {
-        "grew_1dollar_to": 37.4272,
-        "cagr": 0.1511,
-        "sharpe": 0.5201,
-        "max_drawdown": -0.6968
-      }
-    },
-    "last 15 years": {
-      "Buy & Hold 1x": {
-        "grew_1dollar_to": 7.6816,
-        "cagr": 0.146,
-        "sharpe": 0.7861,
-        "max_drawdown": -0.3379
-      },
-      "MA200 -> Cash": {
-        "grew_1dollar_to": 4.6826,
-        "cagr": 0.1087,
-        "sharpe": 0.8077,
-        "max_drawdown": -0.1796
-      },
-      "Lev 1.5x above MA": {
-        "grew_1dollar_to": 11.5486,
-        "cagr": 0.1777,
-        "sharpe": 0.7918,
-        "max_drawdown": -0.4007
-      },
-      "Lev 2x above MA": {
-        "grew_1dollar_to": 18.5897,
-        "cagr": 0.2158,
-        "sharpe": 0.809,
-        "max_drawdown": -0.4582
-      },
-      "Lev 3x above MA": {
-        "grew_1dollar_to": 41.0727,
-        "cagr": 0.282,
-        "sharpe": 0.812,
-        "max_drawdown": -0.5596
-      }
+      "3x": 1.4588,
+      "5x": 2.9542
     }
   },
   "step4_inverted": {
@@ -177,11 +116,11 @@
       "calmar": 0.1209
     },
     "best_inverted_net": {
-      "name": "Lev 3x ABOVE (net)",
-      "cagr": 0.1748,
-      "sharpe": 0.504,
-      "max_drawdown": -0.9565,
-      "calmar": 0.1827
+      "name": "Lev 5x ABOVE (net)",
+      "cagr": 0.182,
+      "sharpe": 0.5279,
+      "max_drawdown": -0.9993,
+      "calmar": 0.1821
     },
     "inverted_net_by_leverage": {
       "Lev 1.5x ABOVE (net)": {
@@ -201,6 +140,12 @@
         "sharpe": 0.504,
         "max_drawdown": -0.9565,
         "calmar": 0.1827
+      },
+      "Lev 5x ABOVE (net)": {
+        "cagr": 0.182,
+        "sharpe": 0.5279,
+        "max_drawdown": -0.9993,
+        "calmar": 0.1821
       }
     },
     "below_net_by_leverage": {
@@ -221,6 +166,12 @@
         "sharpe": 0.1304,
         "max_drawdown": -0.9987,
         "calmar": -0.0024
+      },
+      "Lev 5x BELOW (net)": {
+        "cagr": NaN,
+        "sharpe": 0.0634,
+        "max_drawdown": -1.0,
+        "calmar": NaN
       }
     }
   },
@@ -255,6 +206,12 @@
       "max_drawdown": -0.7352,
       "calmar": 0.1816
     },
+    "Lev 5x ABOVE (net)": {
+      "cagr": 0.1314,
+      "sharpe": 0.4792,
+      "max_drawdown": -0.9043,
+      "calmar": 0.1453
+    },
     "Lev 1.5x BELOW (net)": {
       "cagr": 0.0715,
       "sharpe": 0.3243,
@@ -272,6 +229,377 @@
       "sharpe": 0.2228,
       "max_drawdown": -0.9722,
       "calmar": 0.0097
+    },
+    "Lev 5x BELOW (net)": {
+      "cagr": -0.1499,
+      "sharpe": 0.1747,
+      "max_drawdown": -0.9997,
+      "calmar": -0.15
+    }
+  },
+  "step6_horizons": {
+    "last 50 years": {
+      "Buy & Hold 1x": {
+        "grew_1dollar_to": 256.6601,
+        "cagr": 0.1174,
+        "volatility": 0.1741,
+        "sharpe": 0.4891,
+        "sortino": 0.6853,
+        "max_drawdown": -0.5525,
+        "calmar": 0.2125
+      },
+      "MA200 -> Cash": {
+        "grew_1dollar_to": 189.3675,
+        "cagr": 0.1106,
+        "volatility": 0.1171,
+        "sharpe": 0.6037,
+        "sortino": 0.8457,
+        "max_drawdown": -0.2055,
+        "calmar": 0.5383
+      },
+      "Lev 1.5x above MA": {
+        "grew_1dollar_to": 567.2934,
+        "cagr": 0.1353,
+        "volatility": 0.2179,
+        "sharpe": 0.5033,
+        "sortino": 0.7037,
+        "max_drawdown": -0.5897,
+        "calmar": 0.2294
+      },
+      "Lev 2x above MA": {
+        "grew_1dollar_to": 1532.843,
+        "cagr": 0.1581,
+        "volatility": 0.2674,
+        "sharpe": 0.5298,
+        "sortino": 0.7404,
+        "max_drawdown": -0.6278,
+        "calmar": 0.2518
+      },
+      "Lev 3x above MA": {
+        "grew_1dollar_to": 6622.574,
+        "cagr": 0.1925,
+        "volatility": 0.3743,
+        "sharpe": 0.5494,
+        "sortino": 0.7676,
+        "max_drawdown": -0.758,
+        "calmar": 0.2539
+      },
+      "Lev 5x above MA": {
+        "grew_1dollar_to": 14643.756,
+        "cagr": 0.2116,
+        "volatility": 0.5997,
+        "sharpe": 0.5562,
+        "sortino": 0.7771,
+        "max_drawdown": -0.9289,
+        "calmar": 0.2278
+      }
+    },
+    "last 30 years": {
+      "Buy & Hold 1x": {
+        "grew_1dollar_to": 19.1285,
+        "cagr": 0.1036,
+        "volatility": 0.1913,
+        "sharpe": 0.496,
+        "sortino": 0.7007,
+        "max_drawdown": -0.5525,
+        "calmar": 0.1876
+      },
+      "MA200 -> Cash": {
+        "grew_1dollar_to": 14.0468,
+        "cagr": 0.0923,
+        "volatility": 0.121,
+        "sharpe": 0.6081,
+        "sortino": 0.8404,
+        "max_drawdown": -0.2055,
+        "calmar": 0.4492
+      },
+      "Lev 1.5x above MA": {
+        "grew_1dollar_to": 31.5172,
+        "cagr": 0.1222,
+        "volatility": 0.2343,
+        "sharpe": 0.5155,
+        "sortino": 0.7215,
+        "max_drawdown": -0.5897,
+        "calmar": 0.2072
+      },
+      "Lev 2x above MA": {
+        "grew_1dollar_to": 58.0396,
+        "cagr": 0.1453,
+        "volatility": 0.2837,
+        "sharpe": 0.5431,
+        "sortino": 0.7564,
+        "max_drawdown": -0.6278,
+        "calmar": 0.2315
+      },
+      "Lev 3x above MA": {
+        "grew_1dollar_to": 140.5535,
+        "cagr": 0.1797,
+        "volatility": 0.3921,
+        "sharpe": 0.5631,
+        "sortino": 0.7803,
+        "max_drawdown": -0.758,
+        "calmar": 0.2371
+      },
+      "Lev 5x above MA": {
+        "grew_1dollar_to": 208.8347,
+        "cagr": 0.1954,
+        "volatility": 0.6229,
+        "sharpe": 0.5685,
+        "sortino": 0.7853,
+        "max_drawdown": -0.9289,
+        "calmar": 0.2103
+      }
+    },
+    "last 15 years": {
+      "Buy & Hold 1x": {
+        "grew_1dollar_to": 7.6816,
+        "cagr": 0.146,
+        "volatility": 0.1732,
+        "sharpe": 0.7861,
+        "sortino": 1.1057,
+        "max_drawdown": -0.3379,
+        "calmar": 0.4322
+      },
+      "MA200 -> Cash": {
+        "grew_1dollar_to": 4.6826,
+        "cagr": 0.1087,
+        "volatility": 0.1175,
+        "sharpe": 0.8077,
+        "sortino": 1.106,
+        "max_drawdown": -0.1796,
+        "calmar": 0.6053
+      },
+      "Lev 1.5x above MA": {
+        "grew_1dollar_to": 11.5486,
+        "cagr": 0.1777,
+        "volatility": 0.2174,
+        "sharpe": 0.7918,
+        "sortino": 1.1003,
+        "max_drawdown": -0.4007,
+        "calmar": 0.4436
+      },
+      "Lev 2x above MA": {
+        "grew_1dollar_to": 18.5897,
+        "cagr": 0.2158,
+        "volatility": 0.2672,
+        "sharpe": 0.809,
+        "sortino": 1.1173,
+        "max_drawdown": -0.4582,
+        "calmar": 0.471
+      },
+      "Lev 3x above MA": {
+        "grew_1dollar_to": 41.0727,
+        "cagr": 0.282,
+        "volatility": 0.3747,
+        "sharpe": 0.812,
+        "sortino": 1.1151,
+        "max_drawdown": -0.5596,
+        "calmar": 0.5039
+      },
+      "Lev 5x above MA": {
+        "grew_1dollar_to": 104.6735,
+        "cagr": 0.3647,
+        "volatility": 0.6011,
+        "sharpe": 0.7993,
+        "sortino": 1.094,
+        "max_drawdown": -0.7158,
+        "calmar": 0.5095
+      }
+    }
+  },
+  "step7_leverage_to_cash": {
+    "Buy & Hold 1x": {
+      "grew_1dollar_to": 13020.9895,
+      "cagr": 0.1014,
+      "volatility": 0.1892,
+      "sharpe": 0.3953,
+      "sortino": 0.5601,
+      "max_drawdown": -0.8385,
+      "calmar": 0.1209
+    },
+    "MA200 -> Cash": {
+      "grew_1dollar_to": 33089.5278,
+      "cagr": 0.1129,
+      "volatility": 0.1263,
+      "sharpe": 0.5953,
+      "sortino": 0.8408,
+      "max_drawdown": -0.4621,
+      "calmar": 0.2442
+    },
+    "Lev 1.5x above->cash": {
+      "grew_1dollar_to": 140933.6921,
+      "cagr": 0.1296,
+      "volatility": 0.1894,
+      "sharpe": 0.5283,
+      "sortino": 0.7442,
+      "max_drawdown": -0.6305,
+      "calmar": 0.2055
+    },
+    "Lev 2x above->cash": {
+      "grew_1dollar_to": 1023603.0666,
+      "cagr": 0.1528,
+      "volatility": 0.2526,
+      "sharpe": 0.5326,
+      "sortino": 0.7503,
+      "max_drawdown": -0.7506,
+      "calmar": 0.2036
+    },
+    "Lev 3x above->cash": {
+      "grew_1dollar_to": 16337433.0798,
+      "cagr": 0.1861,
+      "volatility": 0.3788,
+      "sharpe": 0.5369,
+      "sortino": 0.7565,
+      "max_drawdown": -0.8965,
+      "calmar": 0.2076
+    },
+    "Lev 5x above->cash": {
+      "grew_1dollar_to": 29600902.9002,
+      "cagr": 0.1934,
+      "volatility": 0.6314,
+      "sharpe": 0.5403,
+      "sortino": 0.7614,
+      "max_drawdown": -0.9982,
+      "calmar": 0.1937
+    }
+  },
+  "step8_three_tier": {
+    "Buy & Hold 1x": {
+      "grew_1dollar_to": 13020.9895,
+      "cagr": 0.1014,
+      "volatility": 0.1892,
+      "sharpe": 0.3953,
+      "sortino": 0.5601,
+      "max_drawdown": -0.8385,
+      "calmar": 0.1209
+    },
+    "MA200 -> Cash": {
+      "grew_1dollar_to": 33089.5278,
+      "cagr": 0.1129,
+      "volatility": 0.1263,
+      "sharpe": 0.5953,
+      "sortino": 0.8408,
+      "max_drawdown": -0.4621,
+      "calmar": 0.2442
+    },
+    "3-tier 1.5x": {
+      "grew_1dollar_to": 87949.0668,
+      "cagr": 0.1241,
+      "volatility": 0.1744,
+      "sharpe": 0.5303,
+      "sortino": 0.7461,
+      "max_drawdown": -0.5828,
+      "calmar": 0.2129
+    },
+    "3-tier 2x": {
+      "grew_1dollar_to": 398471.453,
+      "cagr": 0.1417,
+      "volatility": 0.2251,
+      "sharpe": 0.5251,
+      "sortino": 0.7385,
+      "max_drawdown": -0.6782,
+      "calmar": 0.2089
+    },
+    "3-tier 3x": {
+      "grew_1dollar_to": 3426219.063,
+      "cagr": 0.1672,
+      "volatility": 0.3296,
+      "sharpe": 0.515,
+      "sortino": 0.7241,
+      "max_drawdown": -0.8423,
+      "calmar": 0.1985
+    },
+    "3-tier 5x": {
+      "grew_1dollar_to": 6868411.1049,
+      "cagr": 0.1756,
+      "volatility": 0.5422,
+      "sharpe": 0.503,
+      "sortino": 0.7072,
+      "max_drawdown": -0.9873,
+      "calmar": 0.1778
+    }
+  },
+  "step9_constant_vs_switch": {
+    "Buy & Hold 1x": {
+      "grew_1dollar_to": 13020.9895,
+      "cagr": 0.1014,
+      "volatility": 0.1892,
+      "sharpe": 0.3953,
+      "sortino": 0.5601,
+      "max_drawdown": -0.8385,
+      "calmar": 0.1209
+    },
+    "Always 1.5x (constant)": {
+      "grew_1dollar_to": 17377.6766,
+      "cagr": 0.1046,
+      "volatility": 0.2838,
+      "sharpe": 0.3532,
+      "sortino": 0.4996,
+      "max_drawdown": -0.9495,
+      "calmar": 0.1102
+    },
+    "Lev 1.5x above MA": {
+      "grew_1dollar_to": 55471.0134,
+      "cagr": 0.1188,
+      "volatility": 0.2363,
+      "sharpe": 0.4252,
+      "sortino": 0.6008,
+      "max_drawdown": -0.8572,
+      "calmar": 0.1386
+    },
+    "Always 2x (constant)": {
+      "grew_1dollar_to": 23865.9108,
+      "cagr": 0.1082,
+      "volatility": 0.3784,
+      "sharpe": 0.3571,
+      "sortino": 0.5052,
+      "max_drawdown": -0.9857,
+      "calmar": 0.1098
+    },
+    "Lev 2x above MA": {
+      "grew_1dollar_to": 402862.9852,
+      "cagr": 0.1418,
+      "volatility": 0.2894,
+      "sharpe": 0.4662,
+      "sortino": 0.6581,
+      "max_drawdown": -0.8922,
+      "calmar": 0.159
+    },
+    "Always 3x (constant)": {
+      "grew_1dollar_to": 2802.6137,
+      "cagr": 0.0843,
+      "volatility": 0.5677,
+      "sharpe": 0.361,
+      "sortino": 0.5109,
+      "max_drawdown": -0.9995,
+      "calmar": 0.0843
+    },
+    "Lev 3x above MA": {
+      "grew_1dollar_to": 6429402.6249,
+      "cagr": 0.1748,
+      "volatility": 0.4044,
+      "sharpe": 0.504,
+      "sortino": 0.7109,
+      "max_drawdown": -0.9565,
+      "calmar": 0.1827
+    },
+    "Always 5x (constant)": {
+      "grew_1dollar_to": -0.0001,
+      "cagr": NaN,
+      "volatility": 0.9461,
+      "sharpe": 0.3642,
+      "sortino": 0.5154,
+      "max_drawdown": -1.0001,
+      "calmar": NaN
+    },
+    "Lev 5x above MA": {
+      "grew_1dollar_to": 11648320.9116,
+      "cagr": 0.182,
+      "volatility": 0.647,
+      "sharpe": 0.5279,
+      "sortino": 0.7442,
+      "max_drawdown": -0.9993,
+      "calmar": 0.1821
     }
   }
 }
