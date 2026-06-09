@@ -215,6 +215,33 @@ def leveraged_bad_market(prices: pd.Series, underlying_returns: pd.Series,
     return res
 
 
+def leveraged_above_ma(prices: pd.Series, underlying_returns: pd.Series,
+                       window: int, leverage: float, rf_daily=0.0,
+                       costs: dict | None = None,
+                       monthly: bool = False) -> StrategyResult:
+    """INVERTED strategy: ``leverage``x when ABOVE the MA, 1x when BELOW it.
+
+    This is the volatility-aware mirror image of :func:`leveraged_bad_market`.
+    Faber's own data shows below-trend periods have ~60% lower returns and ~30%
+    higher volatility, so this rule concentrates leverage in the calm, rising
+    (above-trend) regime where leverage is rewarded, and de-risks to plain 1x in
+    the volatile, falling (below-trend) regime where volatility decay bites.
+    """
+    if monthly:
+        months = max(1, round(window / config.TRADING_DAYS_PER_MONTH))
+        sig = monthly_trend_signal(prices, months)
+        label = f"Lev {leverage:g}x above ({months}mo)"
+    else:
+        sig = lagged_signal(prices, window)
+        label = f"Lev {leverage:g}x above ({window}d)"
+    # sig==1 (above) -> exposure = leverage ; sig==0 (below) -> exposure 1.0.
+    exposure = sig.map({1.0: leverage, 0.0: 1.0})
+    res = run_exposure_strategy(underlying_returns, exposure, rf_daily, costs, label)
+    res.meta.update({"window": window, "leverage_above": leverage,
+                     "strategy": "leveraged_above_ma"})
+    return res
+
+
 def always_leveraged(underlying_returns: pd.Series, leverage: float,
                      rf_daily=0.0, costs: dict | None = None) -> StrategyResult:
     """A reference: hold ``leverage``x every single day (the naive HFEA-style bet).

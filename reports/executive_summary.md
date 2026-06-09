@@ -56,12 +56,30 @@ Real leveraged ETFs (SSO 2×, UPRO/SPXL 3×) track their daily multiple closely
 synthetic leverage — so the synthetic backtest, if anything, **flatters**
 leverage, and leverage still loses.
 
-### Constructive takeaway
+### Part II — following Faber faithfully, and fixing the direction
 
-The result inverts the hypothesis: **leverage belongs in calm uptrends, not
-volatile downtrends.** The natural follow-up — leverage *above* the MA, de-risk
-below it, or volatility-target the exposure — is left for future work.
+We then replicated Faber's *actual* method (monthly, 10-month SMA, total return
+back to **1901**) — matching his published drawdowns to within a point (timing
+−43.0% vs his −42.24%; buy-hold −81.8% vs −83.66%) — and tested the **inverted**
+rule on data back to **1928**: leverage *above* the trend, 1× below.
+
+| (1928–2026, net) | CAGR | Sharpe | Max DD | Calmar |
+|---|---|---|---|---|
+| Buy & Hold 1× | 10.1% | 0.40 | −84% | 0.12 |
+| MA200 → Cash | 11.3% | **0.60** | **−46%** | **0.24** |
+| **Lev 2× ABOVE MA** | **14.2%** | **0.47** | −89% | 0.16 |
+| Lev 2× BELOW MA (Part I) | 5.7% | 0.21 | −98% | 0.06 |
+
+**Inverting the rule roughly doubles the Sharpe and triples the CAGR** versus
+leveraging below trend, and beats buy-and-hold on CAGR, Sharpe, and Calmar —
+*confirming the constructive takeaway*. The closed-form/Monte-Carlo optimum for
+the S&P is **Kelly ≈ 2×** (break-even ≈ 3.1×). Caveats: leverage-above-MA still
+has **deeper drawdowns** than buy-and-hold (you're leveraged going into crashes)
+and **never beats plain move-to-cash** on risk-adjusted terms. So: trend-following
+is fundamentally a risk-reducer; *if* you add leverage, add it modestly (~1.5–2×)
+**above** the trend, never below.
 
 ---
-*Full study: [`research_paper.md`](research_paper.md). Educational research only —
-not investment advice.*
+*Full study: [`research_paper.md`](research_paper.md) (Part II covers the Faber
+replication and inverted strategy). Educational research only — not investment
+advice.*

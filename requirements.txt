@@ -8,6 +8,7 @@ seaborn>=0.13
 
 # Market data
 yfinance>=0.2.40
+xlrd>=2.0          # read Shiller's long-history .xls (Part II)
 
 # Notebooks (to run / rebuild notebooks/*.ipynb)
 jupyter>=1.0

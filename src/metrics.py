@@ -32,37 +32,43 @@ from .returns import cumulative_index, to_monthly_returns
 # ---------------------------------------------------------------------------
 # Basic building blocks
 # ---------------------------------------------------------------------------
-def n_years(returns: pd.Series) -> float:
-    """Length of the sample in calendar years, using trading-day count."""
-    return len(returns) / TRADING_DAYS_PER_YEAR
+def n_years(returns: pd.Series, periods_per_year: int = TRADING_DAYS_PER_YEAR) -> float:
+    """Length of the sample in calendar years.
+
+    ``periods_per_year`` is 252 for daily data (the default) or 12 for monthly,
+    so the same metrics work for the daily backtest and the monthly Faber rule.
+    """
+    return len(returns) / periods_per_year
 
 
-def cagr(returns: pd.Series) -> float:
-    """Compound annual growth rate from a daily simple-return series."""
+def cagr(returns: pd.Series, periods_per_year: int = TRADING_DAYS_PER_YEAR) -> float:
+    """Compound annual growth rate from a simple-return series."""
     returns = returns.dropna()
     if len(returns) == 0:
         return np.nan
     total_growth = (1.0 + returns).prod()
-    yrs = n_years(returns)
+    yrs = n_years(returns, periods_per_year)
     if yrs <= 0 or total_growth <= 0:
         return np.nan
     return total_growth ** (1.0 / yrs) - 1.0
 
 
-def annual_volatility(returns: pd.Series) -> float:
-    """Annualized standard deviation of daily returns."""
+def annual_volatility(returns: pd.Series,
+                      periods_per_year: int = TRADING_DAYS_PER_YEAR) -> float:
+    """Annualized standard deviation of returns."""
     returns = returns.dropna()
     if len(returns) < 2:
         return np.nan
-    return returns.std(ddof=1) * np.sqrt(TRADING_DAYS_PER_YEAR)
+    return returns.std(ddof=1) * np.sqrt(periods_per_year)
 
 
-def sharpe_ratio(returns: pd.Series, rf_daily: pd.Series | float = 0.0) -> float:
+def sharpe_ratio(returns: pd.Series, rf_daily: pd.Series | float = 0.0,
+                 periods_per_year: int = TRADING_DAYS_PER_YEAR) -> float:
     """Annualized Sharpe ratio.
 
-    rf_daily can be a constant daily risk-free rate or a per-day Series aligned
-    to ``returns``. We subtract it from the strategy returns to get *excess*
-    returns, then annualize mean/std.
+    rf_daily can be a constant per-period risk-free rate or a Series aligned to
+    ``returns``. We subtract it to get *excess* returns, then annualize mean/std
+    using ``periods_per_year``.
     """
     returns = returns.dropna()
     if len(returns) < 2:
@@ -74,16 +80,17 @@ def sharpe_ratio(returns: pd.Series, rf_daily: pd.Series | float = 0.0) -> float
     sd = excess.std(ddof=1)
     if sd == 0 or np.isnan(sd):
         return np.nan
-    return (excess.mean() / sd) * np.sqrt(TRADING_DAYS_PER_YEAR)
+    return (excess.mean() / sd) * np.sqrt(periods_per_year)
 
 
 def sortino_ratio(returns: pd.Series, rf_daily: pd.Series | float = 0.0,
-                  target: float = 0.0) -> float:
+                  target: float = 0.0,
+                  periods_per_year: int = TRADING_DAYS_PER_YEAR) -> float:
     """Annualized Sortino ratio: excess return divided by *downside* deviation.
 
-    Downside deviation only counts days where the (excess) return fell below the
-    ``target`` (default 0). This rewards strategies whose volatility is mostly to
-    the upside.
+    Downside deviation only counts periods where the (excess) return fell below
+    the ``target`` (default 0). This rewards strategies whose volatility is mostly
+    to the upside.
     """
     returns = returns.dropna()
     if len(returns) < 2:
@@ -101,7 +108,7 @@ def sortino_ratio(returns: pd.Series, rf_daily: pd.Series | float = 0.0,
     downside_dev = np.sqrt((shortfall ** 2).mean())
     if downside_dev == 0 or np.isnan(downside_dev):
         return np.nan
-    return ((excess.mean() - target) / downside_dev) * np.sqrt(TRADING_DAYS_PER_YEAR)
+    return ((excess.mean() - target) / downside_dev) * np.sqrt(periods_per_year)
 
 
 def drawdown_series(returns: pd.Series) -> pd.Series:
@@ -122,12 +129,13 @@ def max_drawdown(returns: pd.Series) -> float:
     return dd.min()
 
 
-def calmar_ratio(returns: pd.Series) -> float:
+def calmar_ratio(returns: pd.Series,
+                 periods_per_year: int = TRADING_DAYS_PER_YEAR) -> float:
     """CAGR divided by the absolute value of max drawdown."""
     mdd = max_drawdown(returns)
     if mdd is None or np.isnan(mdd) or mdd == 0:
         return np.nan
-    return cagr(returns) / abs(mdd)
+    return cagr(returns, periods_per_year) / abs(mdd)
 
 
 def drawdown_table(returns: pd.Series, top_n: int = 5) -> pd.DataFrame:
@@ -225,28 +233,31 @@ def rolling_sharpe(returns: pd.Series, years: int = 3,
 # The one-stop summary
 # ---------------------------------------------------------------------------
 def summarize(returns: pd.Series, rf_daily: pd.Series | float = 0.0,
-              name: str | None = None) -> dict:
+              name: str | None = None,
+              periods_per_year: int = TRADING_DAYS_PER_YEAR) -> dict:
     """Return a dictionary of every headline metric for a return stream.
 
     This is what the backtest, parameter sweep, and notebooks call to describe a
-    strategy in one row.
+    strategy in one row. Pass ``periods_per_year=12`` for monthly series.
     """
     returns = returns.dropna()
+    pp = periods_per_year
     stats = {
         "name": name,
         "start": returns.index.min() if len(returns) else pd.NaT,
         "end": returns.index.max() if len(returns) else pd.NaT,
         "n_days": len(returns),
-        "years": n_years(returns),
+        "years": n_years(returns, pp),
         "total_return": (1.0 + returns).prod() - 1.0 if len(returns) else np.nan,
-        "cagr": cagr(returns),
-        "volatility": annual_volatility(returns),
-        "sharpe": sharpe_ratio(returns, rf_daily),
-        "sortino": sortino_ratio(returns, rf_daily),
+        "cagr": cagr(returns, pp),
+        "volatility": annual_volatility(returns, pp),
+        "sharpe": sharpe_ratio(returns, rf_daily, pp),
+        "sortino": sortino_ratio(returns, rf_daily, periods_per_year=pp),
         "max_drawdown": max_drawdown(returns),
-        "calmar": calmar_ratio(returns),
+        "calmar": calmar_ratio(returns, pp),
     }
-    stats.update(best_worst(returns))
+    if pp == TRADING_DAYS_PER_YEAR:
+        stats.update(best_worst(returns))  # day/month stats only meaningful daily
     if name is None:
         stats.pop("name")
     return stats

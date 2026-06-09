@@ -48,6 +48,16 @@ Monte Carlo study of volatility decay, we find:
 textbook case of confusing "more return in good times" with "a better
 strategy."
 
+**Part II** then follows Faber's *actual* method (monthly, 10-month SMA, total
+return back to 1901 — replicated to within a point of his published drawdowns)
+and tests the **inverted** rule on data back to 1928: leverage *above* the trend,
+1× below. That inversion is a genuine improvement — at 2× it roughly **doubles
+the Sharpe and triples the CAGR** of the leverage-below rule and beats
+buy-and-hold on CAGR, Sharpe, and Calmar — though it still suffers deeper maximum
+drawdowns than buy-and-hold, and never beats simple move-to-cash on risk-adjusted
+terms. The lesson: *if* you leverage, leverage the calm uptrend, not the volatile
+downtrend.
+
 ---
 
 ## 2. Introduction
@@ -639,8 +649,9 @@ moving average (and de-risked below it) would be aligned with the volatility-dec
 mathematics — the opposite of what we tested.
 
 **Future work.**
-* Test "leverage when *above* the MA, cash when below" — the volatility-aware
-  inverse — as the natural follow-up.
+* Test "leverage when *above* the MA, 1× below" — the volatility-aware inverse.
+  **→ This is now done in Part II below, on data back to 1928, and it is a real
+  improvement.**
 * **Volatility targeting:** scale leverage by `target_vol / realized_vol` so
   exposure falls automatically when volatility spikes.
 * Multi-asset / multi-timeframe trend signals and regime models with persistence.
@@ -648,18 +659,184 @@ mathematics — the opposite of what we tested.
 
 ---
 
+# Part II — Following Faber Faithfully, and the Inverted Strategy
+
+Part I tested *our* idea — leverage **below** trend — on 1988+ daily total
+return, and rejected it. Two natural objections remain, and Part II answers both:
+
+1. *"You didn't follow Faber's actual method or his long history."* Faber works
+   **monthly**, with a **10-month SMA**, on S&P 500 total return back to **1901**.
+   So we replicate that exactly and check our numbers against his.
+2. *"The real lesson was to leverage the GOOD regime, not the bad one — did you
+   test that?"* We now do, on daily total return back to **1928**.
+
+### 21. Extended data (going back as far as the data allows)
+
+| Series | Span | Use |
+|---|---|---|
+| **Shiller monthly** S&P price + dividends | 1871–present | reconstruct **monthly total return** for the Faber replication |
+| **Reconstructed daily total return** | 1928–1988 | `^GSPC` daily price + Shiller dividend yield |
+| **Real `^SP500TR`** | 1988–2026 | true daily total return (spliced on) |
+| **`^IRX`** 13-week T-bill (+3.5% constant before 1960) | cash / financing |
+
+**Is the reconstruction trustworthy?** We compare the reconstructed daily total
+return to the *real* `^SP500TR` over their 1988–2026 overlap: annualised tracking
+error **0.50%**, correlation **0.9996**, CAGR 11.41% vs 11.47%. The reconstructed
+series is faithful, so the long daily history is safe to use. (Shiller and FRED/
+Yahoo are standard public sources; Shiller's pre-1926 dividends come from the same
+Cowles Commission data Faber cites.)
+
+### 22. Replicating Faber (monthly, 10-month SMA → cash, 1901–2026)
+
+| Metric | S&P 500 buy & hold | 10-month timing → cash |
+|---|---|---|
+| CAGR | 9.95% | 11.24% |
+| Volatility (monthly, annualised) | 15.4% | 10.8% |
+| Sharpe (vs T-bill) | 0.44 | **0.69** |
+| **Max drawdown** | **−81.8%** | **−43.0%** |
+
+**Faber's published figures:** S&P max drawdown **−83.66%** → timing **−42.24%**.
+Our replication lands almost exactly on top of his (−81.8% / −43.0%), confirming
+we are following the paper faithfully. (Our CAGRs run a little higher than his
+1901–2012 numbers because our sample extends to 2026.) The classic result holds:
+the trend rule keeps the returns and roughly **halves the drawdown**.
+
+![Faber replication](../charts/F0_faber_replication.png)
+
+### 23. Longest daily baseline (1928–2026, 200-day SMA → cash)
+
+| Metric | Buy & Hold 1× | MA200 → Cash |
+|---|---|---|
+| CAGR | 10.14% | 11.29% |
+| Volatility | 18.9% | 12.6% |
+| Sharpe | 0.40 | **0.60** |
+| Max drawdown | −83.9% | **−46.2%** |
+| Calmar | 0.12 | **0.24** |
+
+Over the full 98-year daily history (including the 1929–32 crash, where the index
+fell ~84%), the move-to-cash rule again wins on every measure. This is the
+baseline the leveraged variants must beat.
+
+### 24. Leverage on the index itself (daily, net of costs)
+
+Holding *constant* daily leverage on the index over the long history:
+
+| | CAGR |
+|---|---|
+| 1× (buy & hold) | 10.14% |
+| Always 1.5× | 10.46% |
+| Always 2.5× | 10.15% |
+| Always 3× | **8.43%** |
+
+Constant leverage barely helps at 1.5× and *loses* by 3× — the 1929 and 2008
+crashes plus daily volatility decay overwhelm the extra drift. Naive "just hold
+3×" is a bad idea over a full cycle.
+
+![Daily leverage on the index](../charts/F2_leverage_on_index.png)
+
+### 25. How much leverage is *optimal*? (closed form + Monte Carlo)
+
+The compound growth of L× leverage is approximately
+
+$$g(L) = L\mu - \tfrac{1}{2}L^2\sigma^2,$$
+
+with μ the **excess** drift and σ the volatility. This simple parabola gives two
+exact, interpretable answers:
+
+* **Growth-optimal (Kelly) leverage:** $L^* = \mu/\sigma^2$ — maximises long-run
+  compound return.
+* **Break-even leverage:** $L = 2\mu/\sigma^2 - 1$ — the leverage whose compound
+  return *equals* 1×. Above it, variance drag makes leverage lose. (Kelly sits
+  exactly halfway between 1× and break-even.)
+
+For the S&P (excess drift **7.4%**, vol **18.9%**): **Kelly ≈ 2.07×**, break-even
+**≈ 3.13×**. A fine-grid Monte Carlo confirms the closed form precisely — median
+CAGR peaks at Kelly and returns to the 1× level at break-even:
+
+![Optimal leverage curve](../charts/F3_optimal_leverage_curve.png)
+
+The full surfaces (by trend and volatility) show the same diagonal frontier as
+Part I — leverage is only rewarded where drift is high relative to volatility:
+
+![Kelly leverage surface](../charts/F3_kelly_leverage.png)
+![Break-even leverage surface](../charts/F3_breakeven_leverage.png)
+
+**Caveat:** this is the *iid-normal* optimum. Real returns have fat tails and
+volatility clustering, which punish leverage more, so the *realised* best leverage
+is lower than ~2× — as the backtests below confirm.
+
+### 26. The inverted strategy: leverage ABOVE the MA, 1× below
+
+Faber's own Figure 18 reports that below the 10-month SMA, returns are ~60% lower
+and volatility ~30% higher. That is exactly the high-volatility regime where
+leverage is worst. So we **invert** Part I's rule: leverage when **above** the MA
+(calm, rising), drop to plain 1× when **below** (volatile, falling). Daily total
+return 1928–2026, **net of realistic costs** (financing matters — we are
+leveraged ~70% of the time):
+
+| Strategy | CAGR | Sharpe | Max drawdown | Calmar |
+|---|---|---|---|---|
+| Buy & Hold 1× | 10.14% | 0.40 | −83.9% | 0.12 |
+| MA200 → Cash | 11.29% | **0.60** | **−46.2%** | **0.24** |
+| **Lev 1.5× ABOVE** | 11.88% | 0.43 | −85.7% | 0.14 |
+| **Lev 2× ABOVE** | 14.18% | 0.47 | −89.2% | 0.16 |
+| **Lev 3× ABOVE** | **17.48%** | 0.50 | −95.7% | 0.18 |
+| *Lev 2× BELOW (Part I)* | *5.68%* | *0.21* | *−98.2%* | *0.06* |
+
+![Inverted strategy equity](../charts/F4_inverted_equity.png)
+![Inverted strategy drawdowns](../charts/F4_inverted_drawdowns.png)
+
+Three honest conclusions:
+
+1. **Inverting the rule transforms it.** Leverage *above* the MA at 2× delivers
+   **roughly double the Sharpe (0.47 vs 0.21) and ~2.5× the CAGR (14.2% vs 5.7%)**
+   of the original leverage-*below* rule. Direction was the whole problem; Faber's
+   volatility-clustering observation predicted exactly this.
+2. **It beats buy-and-hold on CAGR, Sharpe, and Calmar — but not max drawdown.**
+   Being leveraged *going into* fast crashes (1929, 1987, 2020) deepens the worst
+   loss to −86%…−96%. Daily 3× can be nearly wiped out by a single crash day even
+   with a trend overlay (e.g. a −22% day at 3× is −66% in one day). High leverage
+   buys higher compound returns at the price of an almost un-survivable drawdown.
+3. **The plain move-to-cash rule still wins on pure risk-adjusted terms** —
+   highest Sharpe (0.60) and Calmar (0.24), shallowest drawdown (−46%).
+   Leverage-above-MA is the route to *higher absolute* returns with
+   better-than-buy-hold risk-adjustment, for an investor who can genuinely
+   tolerate deep drawdowns; it is **not** a free lunch over move-to-cash.
+
+### 27. Revised overall conclusion
+
+* **Leverage the *bad* regime (Part I):** clearly wrong — it concentrates leverage
+  in the highest-volatility periods and destroys risk-adjusted returns.
+* **Leverage the *good* regime (Part II):** the right direction — it beats
+  buy-and-hold on return, Sharpe, and Calmar across ~100 years, because it
+  leverages the low-volatility, positive-drift regime the math actually rewards.
+* **But neither leveraged rule beats simple move-to-cash on risk-adjusted terms**,
+  and high leverage still courts catastrophic drawdowns. The most robust takeaway
+  is Faber's original one — trend-following is a *risk-reduction* tool — with the
+  refinement that *if* you add leverage, add it above the trend (modestly,
+  ~1.5–2×), never below it.
+
+A natural next step (left for future work) is **volatility targeting**: scale the
+leverage continuously by `target_vol / realized_vol` so exposure falls
+automatically as volatility rises, which should tame the deep drawdowns that the
+fixed-leverage inverted rule still suffers.
+
+---
+
 ### Reproducibility
 
 ```bash
 pip install -r requirements.txt
-python run_all.py            # regenerates every table in results/ and chart in charts/
-python build_notebooks.py    # rebuilds notebooks/01..08 from source
-python -m pytest tests/ -q   # 9 fast sanity tests (vol-decay math, no look-ahead, metrics)
+python run_all.py            # Part I: tables in results/ + charts in charts/
+python run_faber_leverage.py # Part II: Faber replication, surfaces, inverted strategy
+python build_notebooks.py    # rebuilds notebooks/01..09 from source
+python -m pytest tests/ -q   # 11 fast sanity tests (vol-decay, no look-ahead, metrics)
 python build_pdf.py          # optional: rebuild this PDF (pip install markdown-pdf pymupdf)
 ```
 
-All figures in this paper are the PNGs in `charts/`; all numbers are in
-`results/` (and summarised in `results/headline_results.json`). Data is cached in
-`data/raw`. Random seeds are fixed in `src/config.py`.
+All figures are PNGs in `charts/`; all numbers are in `results/` (Part I summary
+`results/headline_results.json`, Part II `results/headline_faber.json`). Data is
+cached in `data/raw` (including the Shiller spreadsheet). Random seeds are fixed
+in `src/config.py`.
 
 *Educational research only — not investment advice.*

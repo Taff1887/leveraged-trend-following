@@ -246,6 +246,38 @@ def vol_decay_table() -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def kelly_leverage(drift_annual: float, vol_annual: float) -> float:
+    """Growth-optimal (Kelly) leverage that maximises long-run COMPOUND return.
+
+    Maximising  g(L) = L*mu - 0.5*L^2*sigma^2  gives  L* = mu / sigma^2.
+    Here ``drift_annual`` should be the *excess* arithmetic drift over cash.
+    """
+    if vol_annual <= 0:
+        return np.nan
+    return drift_annual / (vol_annual ** 2)
+
+
+def breakeven_leverage(drift_annual: float, vol_annual: float) -> float:
+    """The leverage (> 1) whose compound return EQUALS the 1x compound return.
+
+    Solving g(L) = g(1) for L != 1 gives  L_be = 2*mu/sigma^2 - 1 = 2*Kelly - 1.
+    Above this leverage, variance drag makes leverage LOSE relative to 1x.
+    Note the elegant relationship: Kelly is exactly halfway between 1x and L_be.
+    """
+    if vol_annual <= 0:
+        return np.nan
+    return 2.0 * drift_annual / (vol_annual ** 2) - 1.0
+
+
+def closed_form_leverage_grids(drifts: list[float], vols: list[float],
+                               kind: str = "kelly") -> pd.DataFrame:
+    """Matrix (vol rows x drift cols) of the closed-form optimal/break-even
+    leverage, ready for a heatmap. ``kind`` is 'kelly' or 'breakeven'."""
+    fn = kelly_leverage if kind == "kelly" else breakeven_leverage
+    data = {d: [fn(d, v) for v in vols] for d in drifts}
+    return pd.DataFrame(data, index=vols)
+
+
 def variance_drag(leverage: float, vol_annual: float) -> float:
     """The approximate annual growth penalty from variance drag: 0.5 * L^2 * sigma^2.
 

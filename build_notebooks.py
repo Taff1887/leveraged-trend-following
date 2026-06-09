@@ -543,9 +543,139 @@ def nb08():
     build("08_final_results.ipynb", cells)
 
 
+# ===========================================================================
+# 09 — Faber replication + the inverted (leverage-above-trend) strategy
+# ===========================================================================
+def nb09():
+    cells = [
+        md("# 09 — Faber Replication & the Inverted Leverage Strategy\n\n"
+           "This notebook does the analysis the way Mebane Faber's paper actually "
+           "does it — **monthly total return, a 10-month SMA, cash = 90-day "
+           "T-bills, back to 1901** — and then asks the question the first eight "
+           "notebooks set up:\n\n"
+           "> If below-trend markets are high-volatility (Faber's Figure 18 shows "
+           "returns ~60% lower and volatility ~30% higher below the 10-month SMA), "
+           "then leverage should be applied **above** the trend, not below it.\n\n"
+           "So we test the **inverted** rule: **leverage when ABOVE the moving "
+           "average, plain 1× when below.** We use the longest data we can: a "
+           "daily total-return series back to **1928** (real `^SP500TR` from 1988, "
+           "reconstructed from `^GSPC` price + Shiller dividends before that) and "
+           "monthly total return back to **1871** for the Faber replication."),
+        code(SETUP),
+        code("from src import long_history as lh, returns as rt, signals as sg\n"
+             "from src import backtest as bt, metrics as mx, plots as pl, monte_carlo as mc, config\n\n"
+             "daily_idx, meta = lh.long_daily_tr()\n"
+             "monthly_idx = lh.combined_monthly_tr(start='1901-01-01')\n"
+             "u = rt.simple_returns(daily_idx)\n"
+             "rf_d = lh.long_risk_free_daily(u.index)\n"
+             "rf_m = lh.long_risk_free_monthly(rt.simple_returns(monthly_idx).index)\n"
+             "print('daily TR :', meta['start'], '->', meta['end'], '| splice', meta['splice_date'])\n"
+             "print('monthly  :', monthly_idx.index.min().date(), '->', monthly_idx.index.max().date())"),
+        md("## Reconstruction check\n\n"
+           "Our pre-1988 daily total return is reconstructed. Before trusting it, "
+           "we compare it to the REAL `^SP500TR` over their overlap (1988–today)."),
+        code("v = lh.validate_reconstruction()\n"
+             "print(f\"overlap {v['overlap_start']}..{v['overlap_end']}  ({v['n_days']} days)\")\n"
+             "print(f\"annual tracking error = {v['tracking_error_ann']:.4f}\")\n"
+             "print(f\"reconstructed CAGR = {v['recon_cagr']:.4f} vs real {v['real_cagr']:.4f}, corr = {v['correlation']:.4f}\")"),
+        md("A ~0.5%/yr tracking error and 0.9996 correlation: the reconstruction "
+           "is faithful, so the long series is safe to use."),
+        md("## Step 0 — Replicate Faber (monthly, 10-month SMA → cash, 1901+)"),
+        code("r_m = rt.simple_returns(monthly_idx)\n"
+             "bh_m = bt.buy_and_hold(r_m, rf_daily=rf_m, name='S&P 500 buy & hold')\n"
+             "sig = sg.monthly_trend_signal(monthly_idx, 10).reindex(r_m.index)\n"
+             "tim = bt.run_exposure_strategy(r_m, sig, rf_daily=rf_m, name='10-month timing -> cash')\n"
+             "import pandas as pd\n"
+             "tbl = pd.DataFrame([mx.summarize(bh_m.net_returns, rf_m, 'S&P buy & hold', periods_per_year=12),\n"
+             "                    mx.summarize(tim.net_returns, rf_m, '10-mo timing -> cash', periods_per_year=12)])\n"
+             "tbl[['name','cagr','volatility','sharpe','max_drawdown','calmar']]"),
+        md("Compare to Faber's published figures: he reports the S&P max drawdown "
+           "of **−83.66%** vs timing **−42.24%**. Our replication lands almost on "
+           "top of that — confirming we are following the paper faithfully. "
+           "(Our CAGRs run a touch higher because our sample extends to 2026.)"),
+        code("fig = pl.plot_equity_comparison({'S&P 500 buy & hold': bh_m.equity,\n"
+             "    '10-mo timing -> cash': tim.equity},\n"
+             "    'Faber replication: S&P 500 vs 10-month timing (monthly, 1901+)',\n"
+             "    'F0_faber_replication.png',\n"
+             "    colors={'S&P 500 buy & hold': config.COLORS['buy_hold'],\n"
+             "            '10-mo timing -> cash': config.COLORS['ma_cash']}); plt.show()"),
+        md("## Step 3 — How much leverage is optimal? (closed form + Monte Carlo)\n\n"
+           "Compound growth of L× leverage is approximately\n"
+           "$$g(L) = L\\mu - \\tfrac{1}{2}L^2\\sigma^2,$$\n"
+           "where μ is the **excess** drift and σ the volatility. This peaks at the "
+           "**Kelly** leverage $L^*=\\mu/\\sigma^2$ and returns to the 1× level at the "
+           "**break-even** leverage $L=2\\mu/\\sigma^2-1$ (Kelly is exactly halfway "
+           "between)."),
+        code("rf_ann = (1+rf_d.reindex(u.index).fillna(0)).prod()**(252/len(u))-1\n"
+             "mu_ex = u.mean()*252 - rf_ann\n"
+             "sigma = u.std(ddof=1)*np.sqrt(252)\n"
+             "kelly = mu_ex/sigma**2; be = 2*mu_ex/sigma**2 - 1\n"
+             "print(f'S&P-like: excess drift={mu_ex:.3f}, vol={sigma:.3f}')\n"
+             "print(f'Kelly (growth-optimal) leverage = {kelly:.2f}')\n"
+             "print(f'Break-even leverage (= 1x return) = {be:.2f}')\n\n"
+             "levs = list(np.round(np.arange(1.0,5.01,0.25),2))\n"
+             "g = mc.run_grid(drifts=[round(mu_ex,3)], vols=[round(sigma,3)], leverages=levs,\n"
+             "                horizons_years=[10], n_paths=2000, verbose=False)\n"
+             "closed = mu_ex*np.array(levs) - 0.5*np.array(levs)**2*sigma**2\n"
+             "fig, ax = plt.subplots(figsize=(9,5))\n"
+             "ax.plot(g.leverage, g.median_cagr*100, 'o-', color=config.COLORS['leveraged'], label='MC median CAGR')\n"
+             "ax.plot(levs, closed*100, '--k', label='closed form')\n"
+             "ax.axvline(kelly, color=config.COLORS['ma_cash'], ls='--', label=f'Kelly={kelly:.2f}')\n"
+             "ax.axvline(be, color=config.COLORS['accent'], ls='--', label=f'break-even={be:.2f}')\n"
+             "ax.set_xlabel('Leverage'); ax.set_ylabel('10-yr median CAGR (%)'); ax.legend(); plt.show()"),
+        md("For the S&P (excess drift ~7%, vol ~19%), the **iid** growth-optimal "
+           "leverage is around **2×**. But this assumes well-behaved normal "
+           "returns — real markets have fat tails and volatility clustering, which "
+           "punish leverage more, so the *realised* optimum is lower."),
+        md("## Step 4 — The inverted strategy: leverage ABOVE the MA, 1× below\n\n"
+           "Now the payoff. We leverage only in the calm, above-trend regime and "
+           "drop to 1× in the volatile, below-trend regime — and we charge "
+           "realistic costs (financing matters, since we are leveraged ~70% of the "
+           "time)."),
+        code("levs = [1.5, 2.0, 3.0]\n"
+             "rows = [mx.summarize(bh.net_returns if False else bt.buy_and_hold(u, rf_daily=rf_d).net_returns, rf_d, 'Buy & Hold 1x'),\n"
+             "        mx.summarize(bt.ma_to_cash(daily_idx, u, 200, rf_daily=rf_d).net_returns, rf_d, 'MA200 -> Cash')]\n"
+             "curves = {}; dd = {}\n"
+             "for L in levs:\n"
+             "    net = bt.leveraged_above_ma(daily_idx, u, 200, L, rf_daily=rf_d, costs=config.DEFAULT_COSTS)\n"
+             "    rows.append(mx.summarize(net.net_returns, rf_d, f'Lev {L:g}x ABOVE (net)'))\n"
+             "    curves[f'Lev {L:g}x ABOVE (net)'] = net.equity; dd[f'Lev {L:g}x ABOVE (net)'] = net.net_returns\n"
+             "# original idea for contrast\n"
+             "below = bt.leveraged_bad_market(daily_idx, u, 200, 2.0, rf_daily=rf_d, costs=config.DEFAULT_COSTS)\n"
+             "rows.append(mx.summarize(below.net_returns, rf_d, 'Lev 2x BELOW (net) [original]'))\n"
+             "import pandas as pd\n"
+             "pd.DataFrame(rows)[['name','cagr','volatility','sharpe','max_drawdown','calmar']]"),
+        code("bh = bt.buy_and_hold(u, rf_daily=rf_d); ma = bt.ma_to_cash(daily_idx, u, 200, rf_daily=rf_d)\n"
+             "allc = {'Buy & Hold 1x': bh.equity, 'MA200 -> Cash': ma.equity}; allc.update(curves)\n"
+             "fig = pl.plot_equity_comparison(allc, 'Leverage ABOVE the MA (net) vs baselines (1928+)',\n"
+             "    'F4_inverted_equity.png'); plt.show()\n"
+             "alld = {'Buy & Hold 1x': bh.net_returns, 'MA200 -> Cash': ma.net_returns}; alld.update(dd)\n"
+             "fig = pl.plot_drawdowns(alld, 'Drawdowns: leverage ABOVE the MA vs baselines',\n"
+             "    'F4_inverted_drawdowns.png'); plt.show()"),
+        md("## The verdict\n\n"
+           "1. **Inverting the rule works.** Leverage *above* the MA at 2× delivers "
+           "roughly **double the Sharpe and triple the CAGR** of the original "
+           "leverage-*below* rule. Faber's volatility-clustering observation is the "
+           "reason: leverage belongs in the calm, above-trend regime.\n\n"
+           "2. **It beats buy-and-hold on CAGR, Sharpe, and Calmar** — but NOT on "
+           "maximum drawdown. Being leveraged going *into* fast crashes (1929, 1987, "
+           "2020) deepens the worst loss (−86% to −96% at higher leverage). Daily "
+           "3× can be nearly wiped out by a single crash day even with a trend "
+           "overlay.\n\n"
+           "3. **The plain move-to-cash rule still wins on pure risk-adjusted terms** "
+           "(highest Sharpe/Calmar, shallowest drawdown). Leverage-above-MA is the "
+           "way to chase *higher absolute* returns with better-than-buy-hold "
+           "risk-adjustment — if you can stomach deep drawdowns.\n\n"
+           "So the original hypothesis was backwards, and fixing the direction is a "
+           "real improvement. Full write-up: `reports/research_paper.md`, "
+           "Part II (Faber replication & the inverted strategy)."),
+    ]
+    build("09_faber_replication_and_inverted_leverage.ipynb", cells)
+
+
 def main():
     print("Building notebooks ...")
-    nb01(); nb02(); nb03(); nb04(); nb05(); nb06(); nb07(); nb08()
+    nb01(); nb02(); nb03(); nb04(); nb05(); nb06(); nb07(); nb08(); nb09()
     print("Done.")
 
 
