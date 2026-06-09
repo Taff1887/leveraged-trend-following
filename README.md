@@ -54,9 +54,13 @@ S&P 500 daily total return, **1928–2026, net of costs** (fees + financing + tu
 | Lev 1.5× above MA | $55,471 | 11.9% | 23.6% | 0.43 | 0.60 | −85.7% | 0.14 |
 | Lev 2× above MA | $402,863 | 14.2% | 28.9% | 0.47 | 0.66 | −89.2% | 0.16 |
 | Lev 3× above MA | $6,429,403 | 17.5% | 40.4% | 0.50 | 0.71 | −95.7% | 0.18 |
-| Lev 5× above MA | **$11,648,321** | **18.2%** | 64.7% | 0.53 | 0.74 | −99.9% | 0.18 |
+| Lev 4× above MA | **$20,129,416** | **18.9%** | 52.5% | 0.52 | 0.73 | −99.2% | 0.19 |
 
-<p align="center"><img src="charts/F4_inverted_equity.png" width="82%"></p>
+<p align="center"><img src="charts/lev_above_full.png" width="82%"></p>
+
+*(Sharpe uses the **arithmetic** mean excess return over T-bills, not the CAGR —
+for high-vol rows the two differ by the variance drag ≈ ½·vol², so Sharpe ≠
+(CAGR−rf)/vol. See the paper's "How the ratios are computed" note.)*
 
 For contrast, the opposite switch — *buy leverage low* (leverage **below** the MA) —
 gets worse as leverage rises: 2× below grows $1 to just **$217**, and 3× below to
@@ -68,15 +72,15 @@ volatility, still falling), not at the bottom — exactly where leverage hurts m
 ## Is it the switch, or just leverage?
 
 Holding each leverage level *constantly* (dotted) vs only **above the MA** (solid).
-The switch wins on CAGR, Sharpe **and** drawdown at every level — constant 5× was
-**wiped out** in 1987, while switched 5× grew $1 to $11.6M:
+The switch wins on CAGR, Sharpe **and** drawdown at every level — over a century,
+**constant 4× grew $1 to just $6** (CAGR 1.8%), while switched 4× grew $1 to **$20M**:
 
 | | Grew $1 to | Sharpe | Max DD |
 |---|---|---|---|
 | Always 2× (constant) | $23,866 | 0.36 | −99% |
 | **Lev 2× above MA** | $402,863 | 0.47 | −89% |
-| Always 5× (constant) | **$0 (wiped out)** | 0.36 | −100% |
-| **Lev 5× above MA** | $11,648,321 | 0.53 | −99.9% |
+| Always 4× (constant) | **$6 (CAGR 1.8%)** | 0.36 | −100% |
+| **Lev 4× above MA** | $20,129,416 | 0.52 | −99.2% |
 
 <p align="center"><img src="charts/F12_constant_vs_switch.png" width="82%"></p>
 
@@ -93,8 +97,8 @@ gets the closest of any leveraged variant to plain MA→cash on risk-adjusted te
 | **3-tier** 2× | $398,471 | 14.2% | 22.5% | 0.53 | −68% | 0.21 |
 
 <p align="center">
-<img src="charts/F10_leverage_to_cash.png" width="49%">
-<img src="charts/F11_three_tier.png" width="49%">
+<img src="charts/lev_cash_full.png" width="49%">
+<img src="charts/lev_3tier_full.png" width="49%">
 </p>
 
 ---
@@ -113,13 +117,15 @@ buy & hold across every window.
 | MA200 → Cash | $4.7 | 10.9% | 11.8% | 0.81 | **−18%** | **0.61** |
 | Lev 2× above MA | $18.6 | 21.6% | 26.7% | 0.81 | −46% | 0.47 |
 | Lev 3× above MA | $41.1 | 28.2% | 37.5% | 0.81 | −56% | 0.50 |
-| Lev 5× above MA | **$104.7** | **36.5%** | 60.1% | 0.80 | −72% | 0.51 |
+| Lev 4× above MA | **$73.2** | **33.2%** | 48.7% | 0.81 | −65% | 0.52 |
 
-<p align="center"><img src="charts/F9_last_15y.png" width="82%"></p>
+<p align="center"><img src="charts/lev_above_15y.png" width="82%"></p>
 
-Over the **last 50 years**, $1 → $257 (buy-hold) vs **$14,644** (5× above MA); over
-the **last 30 years**, $19 vs **$209**. Full tables and charts (`F7_last_50y`,
-`F8_last_30y`) are in the [paper](reports/research_paper.md) §9.
+Over the **last 50 years**, $1 → $257 (buy-hold) vs **$14,106** (4× above MA); over
+the **last 30 years**, $19 vs **$216**. The full per-horizon breakdown for *every*
+strategy (leverage-above, leverage→cash, 3-tier) — with Sortino and information
+ratio — is in the [paper](reports/research_paper.md) §5–§8 and
+`results/faber_*_horizons.csv`.
 
 ---
 
@@ -129,12 +135,12 @@ Volatility decay only bites in choppy/falling markets. In a one-directional rall
 off a low, leverage amplifies the gain. **1-year forward total return if you bought
 at the exact bottom:**
 
-| Bottom | 1× | 1.5× | 2× | 3× |
-|---|---|---|---|---|
-| GFC (2009-03-09) | +72% | +122% | +182% | **+339%** |
-| 2018 Q4 (2018-12-24) | +40% | +64% | +92% | **+159%** |
-| COVID (2020-03-23) | +78% | +132% | +198% | **+372%** |
-| 2025 tariff selloff (2025-04-08) | +39% | +61% | +87% | **+146%** |
+| Bottom | 1× | 1.5× | 2× | 3× | 4× |
+|---|---|---|---|---|---|
+| GFC (2009-03-09) | +72% | +122% | +182% | +339% | **+550%** |
+| 2018 Q4 (2018-12-24) | +40% | +64% | +92% | +159% | **+244%** |
+| COVID (2020-03-23) | +78% | +132% | +198% | +372% | **+605%** |
+| 2025 tariff selloff (2025-04-08) | +39% | +61% | +87% | +146% | **+216%** |
 
 <p align="center"><img src="charts/F5_buy_leverage_at_lows.png" width="82%"></p>
 

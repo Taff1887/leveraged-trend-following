@@ -11,6 +11,24 @@ the Shiller dividend yield (this reconstruction tracks the real series with
 T-bill (`^IRX`; a 3.5% constant before 1960). The trend signal is lagged one day,
 so nothing uses information we could not have had.
 
+**How the ratios are computed** (all from *daily* returns, then annualized):
+* **CAGR** — geometric: the constant yearly rate that turns the start wealth into
+  the end wealth. "Grew $1 to" is the literal end value of $1.
+* **Volatility** — annualized standard deviation of daily returns (× √252).
+* **Sharpe** = annualized **mean** daily excess return over the T-bill ÷ volatility.
+  It uses the *arithmetic mean*, **not** the CAGR. For high-volatility strategies
+  the arithmetic mean sits far above the CAGR (by ≈ ½·vol², the variance drag), so
+  Sharpe will **not** equal (CAGR − rf)/vol — e.g. the 4× rule's arithmetic mean is
+  ~38% vs an 18.9% CAGR, giving Sharpe (38% − 4%)/52% ≈ 0.52, not (18.9% − 4%)/52%
+  ≈ 0.28. This is the standard definition and is correct; the volatility column lets
+  you check it directly from the arithmetic mean.
+* **Sortino** — same as Sharpe but the denominator counts only downside deviation
+  (shortfalls below zero, averaged over *all* days).
+* **Calmar** = CAGR ÷ |max drawdown|.
+* **Information ratio (IR vs S&P)** = annualized mean of (strategy − S&P buy-&-hold)
+  daily return ÷ its standard deviation (the tracking error). It is undefined for
+  buy-and-hold itself (it *is* the benchmark).
+
 ---
 
 ## 1. Buy & hold vs the Faber moving-average rule
@@ -101,12 +119,12 @@ volatility, ~2%/yr for 1×, **8%/yr for 2×, 18%/yr for 3×**.
 like the rebound off a market bottom — leverage amplifies the gain. Forward
 **1-year** total return if you had bought at the exact low:
 
-| Bottom | 1× | 1.5× | 2× | 3× |
-|---|---|---|---|---|
-| GFC (2009-03-09) | +72% | +122% | +182% | **+339%** |
-| 2018 Q4 (2018-12-24) | +40% | +64% | +92% | **+159%** |
-| COVID (2020-03-23) | +78% | +132% | +198% | **+372%** |
-| 2025 tariff selloff (2025-04-08) | +39% | +61% | +87% | **+146%** |
+| Bottom | 1× | 1.5× | 2× | 3× | 4× |
+|---|---|---|---|---|---|
+| GFC (2009-03-09) | +72% | +122% | +182% | +339% | **+550%** |
+| 2018 Q4 (2018-12-24) | +40% | +64% | +92% | +159% | **+244%** |
+| COVID (2020-03-23) | +78% | +132% | +198% | +372% | **+605%** |
+| 2025 tariff selloff (2025-04-08) | +39% | +61% | +87% | +146% | **+216%** |
 
 ![Buying leverage at the lows](../charts/F5_buy_leverage_at_lows.png)
 
@@ -143,82 +161,113 @@ while higher still would have bled toward zero.
 
 Use the 200-day MA to switch between leveraged and ordinary exposure: **hold L×
 leverage while the market is ABOVE the MA** — the calm, rising regime where the
-kind of one-directional gains seen in §3 actually happen — and drop back to plain
-1× while it is below. Daily total return, 1928–2026, net of costs:
+one-directional gains seen in §3 happen — and drop back to plain 1× while it is
+below. Each strategy is shown over the full history and the last 50 / 30 / 15
+years (net of costs; the volatility column lets you reproduce the Sharpe):
 
-| Strategy | Grew $1 to | CAGR | Vol | Sharpe | Sortino | Max DD | Calmar |
-|---|---|---|---|---|---|---|---|
-| Buy & Hold 1× | $13,021 | 10.1% | 18.9% | 0.40 | 0.56 | −83.9% | 0.12 |
-| MA200 → Cash | $33,090 | 11.3% | 12.6% | **0.60** | **0.84** | **−46.2%** | **0.24** |
-| Lev 1.5× above MA | $55,471 | 11.9% | 23.6% | 0.43 | 0.60 | −85.7% | 0.14 |
-| Lev 2× above MA | $402,863 | 14.2% | 28.9% | 0.47 | 0.66 | −89.2% | 0.16 |
-| Lev 3× above MA | $6,429,403 | 17.5% | 40.4% | 0.50 | 0.71 | −95.7% | 0.18 |
-| Lev 5× above MA | **$11,648,321** | **18.2%** | 64.7% | 0.53 | 0.74 | −99.9% | 0.18 |
+| Horizon | Strategy | Grew $1 to | CAGR | Vol | Sharpe | Sortino | Calmar | Max DD | IR vs S&P |
+|---|---|---|---|---|---|---|---|---|---|
+| full (1928+) | Buy & Hold 1x | $13,021 | 10.1% | 18.9% | 0.40 | 0.56 | 0.12 | -83.9% | — |
+| full (1928+) | MA200 -> Cash | $33,090 | 11.3% | 12.6% | 0.60 | 0.84 | 0.24 | -46.2% | 0.01 |
+| full (1928+) | Lev 1.5x above MA | $55,471 | 11.9% | 23.6% | 0.43 | 0.60 | 0.14 | -85.7% | 0.43 |
+| full (1928+) | Lev 2x above MA | $402,863 | 14.2% | 28.9% | 0.47 | 0.66 | 0.16 | -89.2% | 0.49 |
+| full (1928+) | Lev 3x above MA | $6,429,403 | 17.5% | 40.4% | 0.50 | 0.71 | 0.18 | -95.7% | 0.52 |
+| full (1928+) | Lev 4x above MA | $20,129,416 | 18.9% | 52.5% | 0.52 | 0.73 | 0.19 | -99.2% | 0.53 |
+| last 50y | Buy & Hold 1x | $256.7 | 11.7% | 17.4% | 0.49 | 0.69 | 0.21 | -55.3% | — |
+| last 50y | MA200 -> Cash | $189.4 | 11.1% | 11.7% | 0.60 | 0.85 | 0.54 | -20.6% | -0.11 |
+| last 50y | Lev 1.5x above MA | $567.3 | 13.5% | 21.8% | 0.50 | 0.70 | 0.23 | -59.0% | 0.42 |
+| last 50y | Lev 2x above MA | $1,533 | 15.8% | 26.7% | 0.53 | 0.74 | 0.25 | -62.8% | 0.48 |
+| last 50y | Lev 3x above MA | $6,623 | 19.2% | 37.4% | 0.55 | 0.77 | 0.25 | -75.8% | 0.51 |
+| last 50y | Lev 4x above MA | $14,106 | 21.1% | 48.6% | 0.55 | 0.78 | 0.24 | -86.1% | 0.52 |
+| last 30y | Buy & Hold 1x | $19.1 | 10.4% | 19.1% | 0.50 | 0.70 | 0.19 | -55.3% | — |
+| last 30y | MA200 -> Cash | $14.0 | 9.2% | 12.1% | 0.61 | 0.84 | 0.45 | -20.6% | -0.14 |
+| last 30y | Lev 1.5x above MA | $31.5 | 12.2% | 23.4% | 0.52 | 0.72 | 0.21 | -59.0% | 0.43 |
+| last 30y | Lev 2x above MA | $58.0 | 14.5% | 28.4% | 0.54 | 0.76 | 0.23 | -62.8% | 0.49 |
+| last 30y | Lev 3x above MA | $140.6 | 18.0% | 39.2% | 0.56 | 0.78 | 0.24 | -75.8% | 0.52 |
+| last 30y | Lev 4x above MA | $216.0 | 19.7% | 50.6% | 0.57 | 0.79 | 0.23 | -86.1% | 0.53 |
+| last 15y | Buy & Hold 1x | $7.68 | 14.6% | 17.3% | 0.79 | 1.11 | 0.43 | -33.8% | — |
+| last 15y | MA200 -> Cash | $4.68 | 10.9% | 11.8% | 0.81 | 1.11 | 0.61 | -18.0% | -0.32 |
+| last 15y | Lev 1.5x above MA | $11.5 | 17.8% | 21.7% | 0.79 | 1.10 | 0.44 | -40.1% | 0.61 |
+| last 15y | Lev 2x above MA | $18.6 | 21.6% | 26.7% | 0.81 | 1.12 | 0.47 | -45.8% | 0.68 |
+| last 15y | Lev 3x above MA | $41.1 | 28.2% | 37.5% | 0.81 | 1.12 | 0.50 | -56.0% | 0.72 |
+| last 15y | Lev 4x above MA | $73.2 | 33.2% | 48.7% | 0.81 | 1.10 | 0.52 | -64.5% | 0.73 |
 
-![Leverage the uptrend (above the MA)](../charts/F4_inverted_equity.png)
-![Drawdowns](../charts/F4_inverted_drawdowns.png)
+![Leverage the uptrend — full history](../charts/lev_above_full.png)
+![Last 50 years](../charts/lev_above_50y.png)
+![Last 30 years](../charts/lev_above_30y.png)
+![Last 15 years](../charts/lev_above_15y.png)
 
-Leveraging the uptrend gets **better** as leverage rises — $1 grows to $402,863 at
-2× and $11.6M at 5× (versus $13,021 for buy & hold) — and it beats buy & hold on
-CAGR, Sharpe, Sortino and Calmar at every level. The trade-offs: maximum drawdown
-deepens with leverage (−86% at 1.5× to −99.9% at 5×, because you are leveraged
-going *into* fast crashes), and it still does not beat the plain move-to-cash rule
-on a risk-adjusted basis.
+**Reading the table.** Leveraging the uptrend beats buy & hold on CAGR, Sortino
+and Calmar at every horizon, and matches its Sharpe in recent windows (last 15y:
+Sharpe ≈ 0.81 at 2–3×, same as buy & hold, but far higher CAGR). The
+**information ratio vs the S&P is strongly positive and rises with leverage**
+(0.43 → 0.73), so the leverage is adding genuine benchmark-relative return — note
+that plain MA→cash has a **negative** IR in recent windows (−0.11 to −0.32): it
+has *lagged* the index since the bull began. The cost is drawdown, which deepens
+with leverage (−86% at 1.5× to −99% at 4× over the full century).
 
 ---
 
 ## 6. Does the MA switch add value over just holding leverage?
 
 Is the switching doing the work, or could you just hold constant leverage? Holding
-each leverage level *constantly* (dotted) versus only **above the MA** (solid),
-1928–2026, net:
+each level *constantly* (dotted) versus only **above the MA** (solid), 1928–2026:
 
-| Strategy | Grew $1 to | CAGR | Vol | Sharpe | Max DD |
-|---|---|---|---|---|---|
-| Buy & Hold 1× | $13,021 | 10.1% | 18.9% | 0.40 | −84% |
-| Always 1.5× (constant) | $17,378 | 10.5% | 28.4% | 0.35 | −95% |
-| **Lev 1.5× above MA** | $55,471 | 11.9% | 23.6% | 0.43 | −86% |
-| Always 2× (constant) | $23,866 | 10.8% | 37.8% | 0.36 | −99% |
-| **Lev 2× above MA** | $402,863 | 14.2% | 28.9% | 0.47 | −89% |
-| Always 3× (constant) | $2,803 | 8.4% | 56.8% | 0.36 | −100% |
-| **Lev 3× above MA** | $6,429,403 | 17.5% | 40.4% | 0.50 | −96% |
-| Always 5× (constant) | **$0 (wiped out)** | — | 94.6% | 0.36 | −100% |
-| **Lev 5× above MA** | $11,648,321 | 18.2% | 64.7% | 0.53 | −99.9% |
+| Strategy | Grew $1 to | CAGR | Vol | Sharpe | Sortino | Max DD | IR vs S&P |
+|---|---|---|---|---|---|---|---|
+| Buy & Hold 1x | $13,021 | 10.1% | 18.9% | 0.40 | 0.56 | -83.9% | — |
+| Always 1.5x (constant) | $17,378 | 10.5% | 28.4% | 0.35 | 0.50 | -94.9% | 0.27 |
+| **Lev 1.5x above MA** | $55,471 | 11.9% | 23.6% | 0.43 | 0.60 | -85.7% | 0.43 |
+| Always 2x (constant) | $23,866 | 10.8% | 37.8% | 0.36 | 0.51 | -98.6% | 0.32 |
+| **Lev 2x above MA** | $402,863 | 14.2% | 28.9% | 0.47 | 0.66 | -89.2% | 0.49 |
+| Always 3x (constant) | $2,803 | 8.4% | 56.8% | 0.36 | 0.51 | -100.0% | 0.34 |
+| **Lev 3x above MA** | $6,429,403 | 17.5% | 40.4% | 0.50 | 0.71 | -95.7% | 0.52 |
+| Always 4x (constant) | $6.03 | 1.8% | 75.7% | 0.36 | 0.51 | -100.0% | 0.35 |
+| **Lev 4x above MA** | $20,129,416 | 18.9% | 52.5% | 0.52 | 0.73 | -99.2% | 0.53 |
 
 ![Constant vs MA-switched leverage](../charts/F12_constant_vs_switch.png)
 
-The switch adds enormous value: at every level, the MA-switched version has higher
-CAGR, higher Sharpe **and** a shallower drawdown than holding the same leverage all
-the time. Constant 5× was **wiped out** (a single −22% day in 1987 at 5× is a
-−110% move); the switched 5× grew $1 to $11.6 million. Constant leverage just
-piles risk on with little extra Sharpe; the trend filter is what makes leverage
-pay.
+The switch adds enormous value: at every level the MA-switched version has higher
+CAGR, Sharpe **and** a shallower drawdown than holding the same leverage all the
+time. Constant 4× grew $1 to just **$6** over a century (CAGR 1.8%) and constant 3×
+to **$2,803** (below buy & hold) — while switched 4× grew $1 to **$20 million**.
+Constant leverage simply piles on volatility (Sharpe stuck at 0.36) for almost no
+extra compound return; the trend filter is what makes leverage pay.
 
 ---
 
 ## 7. Leverage → cash: sidestep the downturns
 
-Instead of dropping to plain 1× below the MA, go all the way to **cash** — so the
-strategy is leveraged in uptrends and completely out during below-trend slumps.
-1928–2026, net:
+Instead of dropping to plain 1× below the MA, go all the way to **cash**. Over
+full / 50 / 30 / 15-year horizons (net):
 
-| Strategy | Grew $1 to | CAGR | Vol | Sharpe | Max DD | Calmar |
-|---|---|---|---|---|---|---|
-| Buy & Hold 1× | $13,021 | 10.1% | 18.9% | 0.40 | −84% | 0.12 |
-| MA200 → Cash | $33,090 | 11.3% | 12.6% | **0.60** | **−46%** | **0.24** |
-| Lev 1.5× above → cash | $140,934 | 13.0% | 18.9% | 0.53 | −63% | 0.21 |
-| Lev 2× above → cash | $1,023,603 | 15.3% | 25.3% | 0.53 | −75% | 0.20 |
-| Lev 3× above → cash | $16,337,433 | 18.6% | 37.9% | 0.54 | −90% | 0.21 |
-| Lev 5× above → cash | **$29,600,903** | **19.3%** | 63.1% | 0.54 | −99.8% | 0.19 |
+| Horizon | Strategy | Grew $1 to | CAGR | Vol | Sharpe | Sortino | Calmar | Max DD | IR vs S&P |
+|---|---|---|---|---|---|---|---|---|---|
+| full (1928+) | Buy & Hold 1x | $13,021 | 10.1% | 18.9% | 0.40 | 0.56 | 0.12 | -83.9% | — |
+| full (1928+) | MA200 -> Cash | $33,090 | 11.3% | 12.6% | 0.60 | 0.84 | 0.24 | -46.2% | 0.01 |
+| full (1928+) | Lev 1.5x above->cash | $140,934 | 13.0% | 18.9% | 0.53 | 0.74 | 0.21 | -63.0% | 0.17 |
+| full (1928+) | Lev 2x above->cash | $1,023,603 | 15.3% | 25.3% | 0.53 | 0.75 | 0.20 | -75.1% | 0.32 |
+| full (1928+) | Lev 3x above->cash | $16,337,433 | 18.6% | 37.9% | 0.54 | 0.76 | 0.21 | -89.7% | 0.45 |
+| full (1928+) | Lev 4x above->cash | $51,152,522 | 20.0% | 50.5% | 0.54 | 0.76 | 0.20 | -97.8% | 0.49 |
+| last 50y | Lev 2x above->cash | $988.6 | 14.8% | 23.4% | 0.53 | 0.74 | 0.32 | -46.9% | 0.23 |
+| last 50y | Lev 4x above->cash | $9,101 | 20.0% | 46.9% | 0.54 | 0.75 | 0.25 | -79.3% | 0.45 |
+| last 30y | Lev 2x above->cash | $39.1 | 13.0% | 24.2% | 0.54 | 0.74 | 0.28 | -46.9% | 0.18 |
+| last 30y | Lev 4x above->cash | $145.4 | 18.1% | 48.4% | 0.54 | 0.75 | 0.23 | -79.3% | 0.43 |
+| last 15y | Lev 2x above->cash | $10.9 | 17.3% | 23.5% | 0.73 | 1.00 | 0.47 | -37.0% | 0.21 |
+| last 15y | Lev 4x above->cash | $43.0 | 28.6% | 47.0% | 0.74 | 1.01 | 0.45 | -63.0% | 0.57 |
 
-![Leverage above the MA, cash below](../charts/F10_leverage_to_cash.png)
+*(Full per-horizon detail: `results/faber_lev_cash_horizons.csv`.)*
 
-Going to cash (not 1×) below the trend both **raises returns and shallows the
-drawdown** versus leverage-to-1×: e.g. 2× above→cash has a −75% drawdown at Sharpe
-0.53, against the leverage-to-1× version's −89% at 0.47. Sharpe sits near 0.53–0.54
-at every leverage (leverage scales the in-market return and risk together), so you
-simply dial CAGR up or down with leverage. It still trails plain MA→cash on Sharpe
-(0.60) and drawdown — the price of the much higher compound return.
+![Leverage → cash — full history](../charts/lev_cash_full.png)
+![Last 50 years](../charts/lev_cash_50y.png)
+![Last 30 years](../charts/lev_cash_30y.png)
+![Last 15 years](../charts/lev_cash_15y.png)
+
+Going to cash (not 1×) below the trend **shallows the drawdown** versus
+leverage-to-1× (2× above→cash: −75% over the full century, and only −37% / −47%
+over the last 15 / 30 years, against the leverage-to-1× −46% / −63%). The price is
+that in the recent bull its Sharpe (≈ 0.73 over 15 years) dips *below* buy & hold's
+(0.79), because the cash periods missed dips that quickly recovered.
 
 ---
 
@@ -226,76 +275,44 @@ simply dial CAGR up or down with leverage. It still trails plain MA→cash on Sh
 
 A finer version uses a fast (3-month) MA *and* the slow (200-day) MA: **leverage**
 above both, **plain 1× S&P** on a mild pullback (below the 3-month but above the
-200-day), **cash** below the 200-day. 1928–2026, net:
+200-day), **cash** below the 200-day. Over full / 50 / 30 / 15-year horizons (net):
 
-| Strategy | Grew $1 to | CAGR | Vol | Sharpe | Max DD | Calmar |
-|---|---|---|---|---|---|---|
-| Buy & Hold 1× | $13,021 | 10.1% | 18.9% | 0.40 | −84% | 0.12 |
-| MA200 → Cash | $33,090 | 11.3% | 12.6% | **0.60** | **−46%** | **0.24** |
-| 3-tier 1.5× | $87,949 | 12.4% | 17.4% | 0.53 | −58% | 0.21 |
-| 3-tier 2× | $398,471 | 14.2% | 22.5% | 0.53 | −68% | 0.21 |
-| 3-tier 3× | $3,426,219 | 16.7% | 33.0% | 0.52 | −84% | 0.20 |
-| 3-tier 5× | $6,868,411 | 17.6% | 54.2% | 0.50 | −99% | 0.18 |
+| Horizon | Strategy | Grew $1 to | CAGR | Vol | Sharpe | Sortino | Calmar | Max DD | IR vs S&P |
+|---|---|---|---|---|---|---|---|---|---|
+| full (1928+) | MA200 -> Cash | $33,090 | 11.3% | 12.6% | 0.60 | 0.84 | 0.24 | -46.2% | 0.01 |
+| full (1928+) | 3-tier 1.5x | $87,949 | 12.4% | 17.4% | 0.53 | 0.75 | 0.21 | -58.3% | 0.13 |
+| full (1928+) | 3-tier 2x | $398,471 | 14.2% | 22.5% | 0.53 | 0.74 | 0.21 | -67.8% | 0.25 |
+| full (1928+) | 3-tier 3x | $3,426,219 | 16.7% | 33.0% | 0.52 | 0.72 | 0.20 | -84.2% | 0.38 |
+| full (1928+) | 3-tier 4x | $8,987,783 | 17.9% | 43.6% | 0.51 | 0.71 | 0.19 | -94.4% | 0.42 |
+| last 30y | 3-tier 2x | $18.4 | 10.2% | 21.4% | 0.46 | 0.63 | 0.21 | -49.3% | 0.02 |
+| last 15y | Buy & Hold 1x | $7.68 | 14.6% | 17.3% | 0.79 | 1.11 | 0.43 | -33.8% | — |
+| last 15y | 3-tier 2x | $5.95 | 12.7% | 20.9% | 0.60 | 0.82 | 0.39 | -32.3% | -0.06 |
+| last 15y | 3-tier 4x | $8.05 | 15.0% | 40.4% | 0.51 | 0.69 | 0.27 | -54.5% | 0.22 |
 
-![Three-tier leverage / S&P / cash](../charts/F11_three_tier.png)
+*(Full per-horizon detail: `results/faber_lev_3tier_horizons.csv`.)*
 
-The middle "plain S&P" tier trims volatility and drawdown versus the straight
-leverage→cash rule at low leverage (3-tier 1.5×: vol 17.4%, drawdown −58%, Calmar
-0.21). Of all the leveraged variants, the 3-tier rule's risk-adjusted numbers come
-closest to the plain MA→cash rule while keeping a much higher compound return.
+![Three-tier — full history](../charts/lev_3tier_full.png)
+![Last 50 years](../charts/lev_3tier_50y.png)
+![Last 30 years](../charts/lev_3tier_30y.png)
+![Last 15 years](../charts/lev_3tier_15y.png)
+
+The 3-tier rule has the shallowest drawdowns of any leveraged variant over the full
+century (1.5×: −58%) and the best risk-adjusted profile *over the long run*. But
+the extra de-risking **hurts in the recent bull** — over the last 15 years its
+Sharpe falls to 0.51–0.65 (below buy & hold's 0.79) and even 4× barely beats 1×,
+because it sat in cash/1× through dips that recovered fast. It is the most
+conservative of the leveraged rules: best when bear markets are real and sustained,
+worst when every dip is bought.
 
 ---
 
-## 9. Performance over recent horizons (last 50 / 30 / 15 years)
-
-The 1928-start drawdowns are dominated by 1929/1987. Here is the leverage-the-
-uptrend strategy over more recent windows (net of costs); volatility is shown so
-the Sharpe can be checked directly.
-
-**Last 50 years:**
-
-| Strategy | Grew $1 to | CAGR | Vol | Sharpe | Max DD | Calmar |
-|---|---|---|---|---|---|---|
-| Buy & Hold 1× | $257 | 11.7% | 17.4% | 0.49 | −55% | 0.21 |
-| MA200 → Cash | $189 | 11.1% | 11.7% | **0.60** | **−21%** | **0.54** |
-| Lev 1.5× above MA | $567 | 13.5% | 21.8% | 0.50 | −59% | 0.23 |
-| Lev 2× above MA | $1,533 | 15.8% | 26.7% | 0.53 | −63% | 0.25 |
-| Lev 3× above MA | $6,623 | 19.2% | 37.4% | 0.55 | −76% | 0.25 |
-| Lev 5× above MA | **$14,644** | **21.2%** | 60.0% | 0.56 | −93% | 0.23 |
-
-![Last 50 years](../charts/F7_last_50y.png)
-
-**Last 30 years:**
-
-| Strategy | Grew $1 to | CAGR | Vol | Sharpe | Max DD | Calmar |
-|---|---|---|---|---|---|---|
-| Buy & Hold 1× | $19 | 10.4% | 19.1% | 0.50 | −55% | 0.19 |
-| MA200 → Cash | $14 | 9.2% | 12.1% | **0.61** | **−21%** | **0.45** |
-| Lev 1.5× above MA | $32 | 12.2% | 23.4% | 0.52 | −59% | 0.21 |
-| Lev 2× above MA | $58 | 14.5% | 28.4% | 0.54 | −63% | 0.23 |
-| Lev 3× above MA | $141 | 18.0% | 39.2% | 0.56 | −76% | 0.24 |
-| Lev 5× above MA | **$209** | **19.5%** | 62.3% | 0.57 | −93% | 0.21 |
-
-![Last 30 years](../charts/F8_last_30y.png)
-
-**Last 15 years:**
-
-| Strategy | Grew $1 to | CAGR | Vol | Sharpe | Max DD | Calmar |
-|---|---|---|---|---|---|---|
-| Buy & Hold 1× | $7.7 | 14.6% | 17.3% | 0.79 | −34% | 0.43 |
-| MA200 → Cash | $4.7 | 10.9% | 11.8% | 0.81 | **−18%** | **0.61** |
-| Lev 1.5× above MA | $11.5 | 17.8% | 21.7% | 0.79 | −40% | 0.44 |
-| Lev 2× above MA | $18.6 | 21.6% | 26.7% | 0.81 | −46% | 0.47 |
-| Lev 3× above MA | $41.1 | 28.2% | 37.5% | 0.81 | −56% | 0.50 |
-| Lev 5× above MA | **$104.7** | **36.5%** | 60.1% | 0.80 | −72% | 0.51 |
-
-![Last 15 years](../charts/F9_last_15y.png)
-
-Across all three windows the leverage-the-uptrend strategy earns far higher
-compound returns at **roughly the same Sharpe** as buy & hold (over the last 15
-years, 5× grew $1 to ~$105 at Sharpe 0.80, versus buy & hold's $7.7 at 0.79). The
-plain MA→cash rule keeps the best Sharpe, Calmar and drawdown throughout, but the
-lowest dollar growth.
+**An interesting cross-cutting result.** The three leveraged rules rank differently
+by *era*. Over the full 1928+ history (which contains real, sustained bears), the
+more defensive rules (3-tier, leverage→cash) have the better risk-adjusted numbers.
+Over the **last 15 years** (a bull with only fast, V-shaped dips), the *least*
+defensive rule — straight leverage-above-MA — wins, because any time spent in cash
+or 1× was time out of a recovering market. There is no single best variant; the
+right amount of de-risking depends on whether bear markets persist.
 
 ---
 

@@ -111,6 +111,27 @@ def sortino_ratio(returns: pd.Series, rf_daily: pd.Series | float = 0.0,
     return ((excess.mean() - target) / downside_dev) * np.sqrt(periods_per_year)
 
 
+def information_ratio(returns: pd.Series, benchmark: pd.Series,
+                      periods_per_year: int = TRADING_DAYS_PER_YEAR) -> float:
+    """Annualized information ratio: active return over a benchmark divided by the
+    tracking error (the std of the active return).
+
+        active_t = returns_t - benchmark_t
+        IR = annualized mean(active) / annualized std(active)
+
+    Here the benchmark is the S&P 500 (buy & hold). For the benchmark itself the
+    active return is identically zero, so IR is undefined (returns NaN).
+    """
+    df = pd.concat([returns, benchmark], axis=1, join="inner").dropna()
+    if len(df) < 2:
+        return np.nan
+    active = df.iloc[:, 0] - df.iloc[:, 1]
+    sd = active.std(ddof=1)
+    if sd == 0 or np.isnan(sd):
+        return np.nan
+    return (active.mean() / sd) * np.sqrt(periods_per_year)
+
+
 def drawdown_series(returns: pd.Series) -> pd.Series:
     """Drawdown at each date: current wealth divided by the running peak, minus 1.
 
