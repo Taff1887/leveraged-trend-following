@@ -27,13 +27,13 @@
     "buy_hold": {
       "cagr": 0.0995,
       "volatility": 0.1536,
-      "sharpe": 0.5021,
+      "sharpe": 0.4854,
       "max_drawdown": -0.8176
     },
     "timing": {
-      "cagr": 0.1089,
+      "cagr": 0.1099,
       "volatility": 0.1085,
-      "sharpe": 0.7385,
+      "sharpe": 0.7239,
       "max_drawdown": -0.4745
     },
     "faber_published": {

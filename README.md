@@ -241,6 +241,15 @@ reports/
 * **Monthly total return back to 1901** (Shiller) for the Faber replication.
 * **Cash / financing:** real T-bill rates throughout — `^IRX` (13-week) from 1960,
   and the Ken French / Ibbotson 1-month T-bill (monthly) before that, back to 1926.
+  The only span with no free real short-rate (1901–1926, used only by the monthly
+  Faber replication) uses the **average of the real series (≈3.3%/yr)**, not a
+  made-up constant.
+
+**Everything is real, physical data** — the daily total return is real `^SP500TR`
+(1988+) and, before that, real `^GSPC` price + real Shiller dividends (validated at
+0.5%/yr vs the real series); the pipeline refuses to run on the synthetic fallback.
+The one explicit *model* (not data) is the cost set (expense, financing spread,
+turnover), and every result is also available gross.
 * **Real leveraged ETFs:** SSO (2×), UPRO (3×), SPXL (3×).
 
 Sources are Yahoo Finance (`yfinance`), Robert Shiller's dataset (long dividends),

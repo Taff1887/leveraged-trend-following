@@ -10,9 +10,25 @@ the Shiller dividend yield (this reconstruction tracks the real series with
 0.50%/yr error and 0.9996 correlation over 1988–2026). Cash and the financing of
 leverage use **real T-bill rates** throughout: `^IRX` (13-week T-bill) from 1960,
 and the Ken French / Ibbotson **1-month T-bill** (monthly) before that, back to
-1926 — so the risk-free covers the entire 1928+ daily sample (it averaged ~0% in
-the 1930s–40s, ~1–3% in the 1950s, and ~3.2% over the full sample). The trend
-signal is lagged one day, so nothing uses information we could not have had.
+1926 — so the risk-free is **real** across the entire 1928+ daily sample (≈0% in
+the 1930s–40s, ~1–3% in the 1950s, ~3.2% mean). The trend signal is lagged one day,
+so nothing uses information we could not have had.
+
+**Data provenance — what is real.** Every return and every cash rate in this study
+is *real, physical* market data, not an assumption:
+
+* **Daily total return** — real `^SP500TR` from 1988; before that, **real** `^GSPC`
+  price returns plus the **real** Shiller dividend yield (a reconstruction of total
+  return from two real series, validated against `^SP500TR` at 0.50%/yr tracking
+  error and 0.9996 correlation over 1988–2026). The pipeline **refuses to run** on
+  the synthetic offline-fallback series.
+* **Monthly total return** (Faber replication) — real Shiller price + dividends.
+* **T-bill / cash** — real `^IRX` (1960+) and real Ken French / Ibbotson 1-month
+  bill (1926+). The *only* span with no free real short-rate data is **1901–1926**
+  (touched solely by the monthly replication); there we apply the **average of the
+  real T-bill series (≈3.3%/yr)**, not an arbitrary constant.
+* **The one explicit model** (not data) is the cost set in §2 (expense, financing
+  spread over the real T-bill, turnover); every result is also available *gross*.
 
 **How the ratios are computed** (all from *daily* returns, then annualized):
 * **CAGR** — geometric: the constant yearly rate that turns the start wealth into
@@ -44,9 +60,9 @@ use that, then its daily twin (the 200-day SMA).
 
 | | S&P 500 buy & hold | 10-month timing → cash |
 |---|---|---|
-| CAGR | 9.95% | 10.89% |
-| Volatility | 15.4% | 10.8% |
-| Sharpe | 0.50 | **0.74** |
+| CAGR | 9.95% | 10.99% |
+| Volatility | 15.4% | 10.9% |
+| Sharpe | 0.49 | **0.72** |
 | Max drawdown | −81.8% | **−47.5%** |
 
 (Faber's published drawdowns are −83.66% → −42.24%; we reproduce the same

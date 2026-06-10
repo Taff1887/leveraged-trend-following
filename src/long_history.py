@@ -295,19 +295,30 @@ def load_ff_riskfree() -> pd.Series:
 # ---------------------------------------------------------------------------
 # Long risk-free (T-bill) series
 # ---------------------------------------------------------------------------
+def avg_real_tbill_monthly() -> float:
+    """The AVERAGE monthly T-bill return over the real data we have (Ken French,
+    1926+). Used only to fill the pre-1926 gap, so a missing stretch is an average
+    of real history rather than an arbitrary made-up number."""
+    ff = load_ff_riskfree()
+    if len(ff):
+        return float(ff.mean())
+    return (1.0 + PRE1960_TBILL_ANNUAL) ** (1.0 / 12.0) - 1.0
+
+
 def long_risk_free_daily(index: pd.Index) -> pd.Series:
     """Daily risk-free return aligned to ``index``, using REAL T-bill rates:
 
       * 1960 onward : ^IRX (13-week T-bill), converted to a daily rate.
       * before 1960 : Ken French 1-month T-bill (Ibbotson), the monthly return
                       spread evenly across that month's trading days.
-      * before 1926 : the small ``PRE1960_TBILL_ANNUAL`` constant (rarely hit;
-                      our daily history starts in 1928).
+      * before 1926 : the AVERAGE of the real T-bill series above (the daily
+                      history starts in 1928, so this is essentially never hit).
     """
     rf = dl.get_risk_free_daily(index).copy()    # ^IRX-based, 0 before it starts
     irx = dl.get_level_series(config.RISK_FREE_TICKER)
     irx_start = irx.index.min() if irx is not None else pd.Timestamp("1960-01-01")
-    const_daily = (1.0 + PRE1960_TBILL_ANNUAL) ** (1.0 / config.TRADING_DAYS_PER_YEAR) - 1.0
+    # Fill value for any gap = the average of the REAL series (not a constant).
+    fill_daily = (1.0 + avg_real_tbill_monthly()) ** (1.0 / config.TRADING_DAYS_PER_MONTH) - 1.0
 
     pre = index[index < irx_start]
     if len(pre):
@@ -318,18 +329,15 @@ def long_risk_free_daily(index: pd.Index) -> pd.Series:
             # number of in-sample trading days per pre-1960 month
             days = pd.Series(1, index=pm).groupby(level=0).transform("sum")
             monthly = pd.Series(ff_p.reindex(pm).values, index=pre)
-            daily_pre = (monthly.values / days.values)
-            rf.loc[pre] = daily_pre
-        else:
-            rf.loc[pre] = const_daily
-        rf.loc[pre] = rf.loc[pre].fillna(const_daily)
+            rf.loc[pre] = monthly.values / days.values
+        rf.loc[pre] = rf.loc[pre].fillna(fill_daily)   # pre-1926 gap -> real-series average
     return rf.rename("rf_daily")
 
 
 def long_risk_free_monthly(index: pd.Index) -> pd.Series:
     """Monthly risk-free return aligned to month-end ``index``: ^IRX (1960+),
-    Ken French 1-month T-bill (1926-1960), and a small constant before 1926."""
-    const_monthly = (1.0 + PRE1960_TBILL_ANNUAL) ** (1.0 / 12.0) - 1.0
+    Ken French 1-month T-bill (1926-1960), and — for the pre-1926 gap that only
+    the 1901-1926 monthly replication touches — the AVERAGE of the real series."""
     irx = dl.get_level_series(config.RISK_FREE_TICKER)
     out = pd.Series(np.nan, index=index)
 
@@ -342,4 +350,4 @@ def long_risk_free_monthly(index: pd.Index) -> pd.Series:
         irx_m = irx_m.reindex(index).ffill()
         mask = index >= irx.index.min()        # ^IRX takes over from 1960
         out[mask] = irx_m[mask]
-    return out.fillna(const_monthly).rename("rf_monthly")
+    return out.fillna(avg_real_tbill_monthly()).rename("rf_monthly")

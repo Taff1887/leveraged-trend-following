@@ -669,6 +669,14 @@ def main():
     # --- data ---
     print("[data] building long-history total return ...")
     daily_idx, meta = lh.long_daily_tr()
+    # Guard: NEVER run the analysis on the synthetic fallback. The paper must use
+    # real data (real ^SP500TR spliced with a real-price + real-dividend
+    # reconstruction); error out loudly if the real series are missing.
+    if meta.get("method") != "spliced":
+        raise RuntimeError(
+            "Refusing to run on non-real data: long_daily_tr fell back to "
+            f"'{meta.get('method')}'. Ensure ^SP500TR and ^GSPC are downloaded "
+            "(delete data/raw cache and re-run with a network connection).")
     monthly_idx = lh.combined_monthly_tr(start="1901-01-01")
     u = rt.simple_returns(daily_idx)
     rf_d = lh.long_risk_free_daily(u.index)
