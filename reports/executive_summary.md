@@ -1,85 +1,74 @@
 # Executive Summary
 
 **Project:** *Trend Following, Leveraged Re-Entry, and Volatility Decay — Can
-Daily Leveraged S&P 500 Exposure Improve Long-Term Returns?*
-
-**Sample:** S&P 500 total return (`^SP500TR`), daily, 1988–2026 (38.4 years).
+daily-leveraged S&P 500 exposure improve long-term returns?*
+**Signal:** one only — the 200-day moving average (the daily twin of Mebane
+Faber's 10-month rule).
+**Sample:** S&P 500 **total return**, daily 1928–2026 (real `^SP500TR` from 1988,
+real `^GSPC` + real Shiller dividends before); real T-bills throughout.
 
 ---
 
 ### The question
 
-The classic Faber trend rule holds the S&P 500 when it is above its long moving
-average and **moves to cash** when it falls below. We tested an aggressive
-alternative: when the market is **below** trend, rotate into **daily-leveraged**
-S&P 500 exposure (1.25× to 3×) instead of cash, betting that weak markets are
-followed by strong rebounds that leverage can amplify.
+Use the 200-day MA to switch between leveraged and ordinary S&P 500 exposure.
+Does it beat buy-and-hold and the classic move-to-cash rule — and on *which*
+yardstick?
 
-### The verdict: the idea does not work
+### The headline: the answer depends on the yardstick
 
-| | Buy & Hold | MA200 → Cash | Lev 2× below MA |
-|---|---|---|---|
-| CAGR | 11.5% | 10.2% | 11.2% |
-| Sharpe (vs T-bill) | 0.54 | **0.64** | 0.41 |
-| Max drawdown | −55% | **−21%** | **−83%** |
-| Calmar | 0.21 | **0.50** | 0.14 |
+Full history (1928–2026, net of costs):
 
-* **0 of 35** genuinely-leveraged configurations beat buy-and-hold on **all** of
-  CAGR, Sharpe, Calmar, and drawdown — and **0** beat it on Sharpe alone — whether
-  gross or net of realistic costs.
-* Adding leverage **barely changes CAGR** (and lowers it above ~1.5×) while
-  **drastically deepening drawdowns** (−55% → −96% at 3×) and steadily lowering
-  the Sharpe ratio.
-* The **original move-to-cash rule remains the risk-adjusted winner** by a wide
-  margin.
+| Strategy | Grew $1 to | CAGR | Sharpe | **IR vs S&P** | Max DD |
+|---|---|---|---|---|---|
+| Buy & Hold 1× (S&P) | $13,021 | 10.1% | 0.43 | — | −84% |
+| **MA200 → Cash** (Faber) | $25,922 | 11.0% | **0.63** | **~0.00** | −46% |
+| Lev 2× above MA | $655,939 | 14.8% | 0.51 | 0.53 | −89% |
+| **Lev 4× above MA** | **$87,028,073** | **20.7%** | 0.56 | **0.57** | −99% |
 
-### Why it fails (the one-sentence mechanism)
+Three benchmarks, **three different winners**:
 
-Daily leverage suffers **volatility decay** — a drag of roughly
-½ × leverage² × volatility² per year. The strategy switches leverage on
-**below-trend** markets, which are precisely the **highest-volatility** regimes,
-so it deploys leverage exactly where the mathematics says not to. A 10,000-path
-Monte Carlo confirms leverage only pays in **low-volatility, positive-drift**
-markets; at ≥40% volatility (typical of crashes) leverage is near-total wipeout.
+* **On Sharpe — the 200-day move-to-cash rule is very hard to beat** (0.63 vs the
+  S&P's 0.43), with less than half the drawdown. As a *standalone, risk-adjusted*
+  strategy it is the best thing in the study.
+* **On information ratio it is easily beaten.** Move-to-cash has a roughly **zero
+  (recently *negative*) IR versus the S&P** — as a bet against the index it has
+  actually *lagged* throughout the bull market. **Leveraging the uptrend** posts a
+  large positive IR (0.47 → 0.57, rising with leverage) — i.e. it adds genuine
+  return *relative to the index*.
+* **And the leverage strategy also beats the S&P on Sharpe** (0.51–0.56 vs 0.43)
+  while compounding $1 into the millions — so for an investor benchmarked against
+  the S&P, leveraging the uptrend dominates buy-and-hold on essentially every
+  measure except maximum drawdown.
 
-### Nuance (the honest part)
+### Key findings
 
-Leverage **did** help in the **post-2009 era of shallow, V-shaped dips** and in
-the **2020 COVID crash** specifically — fast rebounds reward leverage. But across
-every *prolonged* bear (1929, 1970s, 1987, dot-com, 2008, 2022) leverage made
-losses far worse. The wins are a **regime, not a rule.**
+1. **Direction is everything.** Leverage the *uptrend* (Lx **above** the MA, 1x
+   below) and you beat buy-and-hold on CAGR, Sharpe, Sortino, Calmar and IR.
+   Leverage the *downtrend* ("buy the dip" below the MA) and 3× turns $1 into
+   **$0.79** — the 200-day MA fires at the *start* of declines, not the bottom.
+2. **The trend filter — not the leverage — is what pays.** Held *constantly*, 4×
+   leverage grows $1 to just **$54** over a century (and was wiped out in 1987);
+   the same 4× *switched* by the MA grows $1 to **$87 million**.
+3. **Leverage works spectacularly if you can time a bottom** — 3× off the COVID
+   low returned **+372%** in a year — but the bottom is only obvious in hindsight.
+4. **Volatility decay caps it.** For the recent S&P (mean ~16%, vol ~18%) the
+   leverage at which decay flattens the total return is ≈ **10×**.
+5. **Honest caveats.** Leveraging the uptrend carries **far deeper drawdowns**
+   (−86% to −99%), and it does **not** beat plain move-to-cash on Sharpe. A
+   "cash-on-sharp-drops" 3-tier variant protects against bears but **whipsaws** in
+   bull markets. Real leveraged ETFs (SSO/UPRO/SPXL) confirm the synthetic results
+   and, if anything, the synthetic version is slightly *optimistic*.
 
-### Reality check
+### Bottom line
 
-Real leveraged ETFs (SSO 2×, UPRO/SPXL 3×) track their daily multiple closely
-(realized β = 1.95 / 2.97 / 2.93) with only 0.3–0.6%/yr of extra drag versus
-synthetic leverage — so the synthetic backtest, if anything, **flatters**
-leverage, and leverage still loses.
-
-### Part II — following Faber faithfully, and fixing the direction
-
-We then replicated Faber's *actual* method (monthly, 10-month SMA, total return
-back to **1901**) — matching his published drawdowns to within a point (timing
-−43.0% vs his −42.24%; buy-hold −81.8% vs −83.66%) — and tested the **inverted**
-rule on data back to **1928**: leverage *above* the trend, 1× below.
-
-| (1928–2026, net) | CAGR | Sharpe | Max DD | Calmar |
-|---|---|---|---|---|
-| Buy & Hold 1× | 10.1% | 0.40 | −84% | 0.12 |
-| MA200 → Cash | 11.3% | **0.60** | **−46%** | **0.24** |
-| **Lev 2× ABOVE MA** | **14.2%** | **0.47** | −89% | 0.16 |
-| Lev 2× BELOW MA (Part I) | 5.7% | 0.21 | −98% | 0.06 |
-
-**Inverting the rule roughly doubles the Sharpe and triples the CAGR** versus
-leveraging below trend, and beats buy-and-hold on CAGR, Sharpe, and Calmar —
-*confirming the constructive takeaway*. The closed-form/Monte-Carlo optimum for
-the S&P is **Kelly ≈ 2×** (break-even ≈ 3.1×). Caveats: leverage-above-MA still
-has **deeper drawdowns** than buy-and-hold (you're leveraged going into crashes)
-and **never beats plain move-to-cash** on risk-adjusted terms. So: trend-following
-is fundamentally a risk-reducer; *if* you add leverage, add it modestly (~1.5–2×)
-**above** the trend, never below.
+* **Optimising Sharpe / capital preservation →** the plain 200-day **move-to-cash**
+  rule. Hard to beat on risk-adjusted terms; it just doesn't try to beat the index.
+* **Benchmarked against the S&P and willing to tolerate deep drawdowns →**
+  **leverage the uptrend** modestly (~1.5–2×): a higher Sharpe than the index, a
+  large information ratio, and dramatically higher growth — never the reverse
+  ("buy the dip with leverage"), which is the worst rule of all.
 
 ---
-*Full study: [`research_paper.md`](research_paper.md) (Part II covers the Faber
-replication and inverted strategy). Educational research only — not investment
-advice.*
+*Full study and every per-horizon table: [`research_paper.md`](research_paper.md).
+Educational research only — not investment advice.*
