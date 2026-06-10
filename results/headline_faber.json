@@ -74,9 +74,9 @@
     "note": "iid model; real fat tails / vol-clustering lower the realised optimum"
   },
   "step3c_zero_return": {
-    "sp_last10_cagr": 0.1534,
+    "sp_last10_mean": 0.1592,
     "sp_last10_vol": 0.1808,
-    "sp_zero_return_leverage": 10.3893
+    "sp_zero_return_leverage": 9.7406
   },
   "step5_event_studies": {
     "GFC bottom (2009) (1yr)": {
@@ -760,44 +760,44 @@
         "info_ratio_vs_sp": -0.0035
       },
       "3-tier 1.5x": {
-        "grew_1dollar_to": 83681.8119,
-        "cagr": 0.1235,
-        "volatility": 0.1744,
-        "sharpe": 0.5704,
-        "sortino": 0.8045,
-        "calmar": 0.2118,
-        "max_drawdown": -0.5831,
-        "info_ratio_vs_sp": 0.1245
+        "grew_1dollar_to": 21439.9891,
+        "cagr": 0.1079,
+        "volatility": 0.1693,
+        "sharpe": 0.4997,
+        "sortino": 0.7064,
+        "calmar": 0.176,
+        "max_drawdown": -0.613,
+        "info_ratio_vs_sp": 0.0251
       },
       "3-tier 2x": {
-        "grew_1dollar_to": 460493.353,
-        "cagr": 0.1434,
-        "volatility": 0.2252,
-        "sharpe": 0.5651,
-        "sortino": 0.7967,
-        "calmar": 0.2116,
-        "max_drawdown": -0.6775,
-        "info_ratio_vs_sp": 0.2621
+        "grew_1dollar_to": 117973.5113,
+        "cagr": 0.1275,
+        "volatility": 0.2212,
+        "sharpe": 0.5078,
+        "sortino": 0.7169,
+        "calmar": 0.1756,
+        "max_drawdown": -0.7262,
+        "info_ratio_vs_sp": 0.1736
       },
       "3-tier 3x": {
-        "grew_1dollar_to": 5842068.0236,
-        "cagr": 0.1736,
-        "volatility": 0.3296,
-        "sharpe": 0.5544,
-        "sortino": 0.7814,
-        "calmar": 0.2064,
-        "max_drawdown": -0.8413,
-        "info_ratio_vs_sp": 0.3963
+        "grew_1dollar_to": 1496422.3926,
+        "cagr": 0.1573,
+        "volatility": 0.3269,
+        "sharpe": 0.5134,
+        "sortino": 0.7241,
+        "calmar": 0.1806,
+        "max_drawdown": -0.871,
+        "info_ratio_vs_sp": 0.334
       },
       "3-tier 4x": {
-        "grew_1dollar_to": 22624487.6832,
-        "cagr": 0.1901,
-        "volatility": 0.4356,
-        "sharpe": 0.5469,
-        "sortino": 0.7708,
-        "calmar": 0.2021,
-        "max_drawdown": -0.9404,
-        "info_ratio_vs_sp": 0.4469
+        "grew_1dollar_to": 5794031.6858,
+        "cagr": 0.1735,
+        "volatility": 0.4336,
+        "sharpe": 0.5151,
+        "sortino": 0.7263,
+        "calmar": 0.1837,
+        "max_drawdown": -0.9445,
+        "info_ratio_vs_sp": 0.4018
       }
     },
     "last 50y": {
@@ -822,44 +822,44 @@
         "info_ratio_vs_sp": -0.1122
       },
       "3-tier 1.5x": {
-        "grew_1dollar_to": 207.4778,
-        "cagr": 0.1126,
-        "volatility": 0.1628,
-        "sharpe": 0.485,
-        "sortino": 0.6745,
-        "calmar": 0.311,
-        "max_drawdown": -0.3622,
-        "info_ratio_vs_sp": -0.0448
+        "grew_1dollar_to": 47.7691,
+        "cagr": 0.0804,
+        "volatility": 0.1582,
+        "sharpe": 0.3088,
+        "sortino": 0.4273,
+        "calmar": 0.1677,
+        "max_drawdown": -0.4795,
+        "info_ratio_vs_sp": -0.2526
       },
       "3-tier 2x": {
-        "grew_1dollar_to": 314.4573,
-        "cagr": 0.1219,
-        "volatility": 0.2108,
-        "sharpe": 0.457,
-        "sortino": 0.6345,
-        "calmar": 0.2476,
-        "max_drawdown": -0.4925,
-        "info_ratio_vs_sp": 0.0681
+        "grew_1dollar_to": 72.3924,
+        "cagr": 0.0895,
+        "volatility": 0.2072,
+        "sharpe": 0.3194,
+        "sortino": 0.4422,
+        "calmar": 0.1525,
+        "max_drawdown": -0.5867,
+        "info_ratio_vs_sp": -0.1127
       },
       "3-tier 3x": {
-        "grew_1dollar_to": 488.0436,
-        "cagr": 0.1319,
-        "volatility": 0.3092,
-        "sharpe": 0.4237,
-        "sortino": 0.5876,
-        "calmar": 0.1923,
-        "max_drawdown": -0.6856,
-        "info_ratio_vs_sp": 0.1911
+        "grew_1dollar_to": 112.3303,
+        "cagr": 0.0991,
+        "volatility": 0.3068,
+        "sharpe": 0.3288,
+        "sortino": 0.4554,
+        "calmar": 0.1329,
+        "max_drawdown": -0.7454,
+        "info_ratio_vs_sp": 0.0646
       },
       "3-tier 4x": {
-        "grew_1dollar_to": 446.2932,
-        "cagr": 0.1298,
-        "volatility": 0.409,
-        "sharpe": 0.4052,
-        "sortino": 0.5617,
-        "calmar": 0.16,
-        "max_drawdown": -0.8113,
-        "info_ratio_vs_sp": 0.2442
+        "grew_1dollar_to": 102.6976,
+        "cagr": 0.0971,
+        "volatility": 0.4072,
+        "sharpe": 0.3329,
+        "sortino": 0.4612,
+        "calmar": 0.1144,
+        "max_drawdown": -0.8491,
+        "info_ratio_vs_sp": 0.1517
       }
     },
     "last 30y": {
@@ -884,44 +884,44 @@
         "info_ratio_vs_sp": -0.1437
       },
       "3-tier 1.5x": {
-        "grew_1dollar_to": 14.5742,
-        "cagr": 0.0937,
-        "volatility": 0.1665,
-        "sharpe": 0.489,
-        "sortino": 0.6687,
-        "calmar": 0.2586,
-        "max_drawdown": -0.3622,
-        "info_ratio_vs_sp": -0.086
+        "grew_1dollar_to": 5.6669,
+        "cagr": 0.0597,
+        "volatility": 0.1613,
+        "sharpe": 0.3037,
+        "sortino": 0.4131,
+        "calmar": 0.1244,
+        "max_drawdown": -0.4795,
+        "info_ratio_vs_sp": -0.283
       },
       "3-tier 2x": {
-        "grew_1dollar_to": 18.4177,
-        "cagr": 0.1022,
-        "volatility": 0.2145,
-        "sharpe": 0.4591,
-        "sortino": 0.6258,
-        "calmar": 0.2076,
-        "max_drawdown": -0.4925,
-        "info_ratio_vs_sp": 0.0199
+        "grew_1dollar_to": 7.161,
+        "cagr": 0.068,
+        "volatility": 0.2105,
+        "sharpe": 0.3137,
+        "sortino": 0.4264,
+        "calmar": 0.1159,
+        "max_drawdown": -0.5867,
+        "info_ratio_vs_sp": -0.1561
       },
       "3-tier 3x": {
-        "grew_1dollar_to": 23.0998,
-        "cagr": 0.1106,
-        "volatility": 0.3135,
-        "sharpe": 0.4229,
-        "sortino": 0.5752,
-        "calmar": 0.1613,
-        "max_drawdown": -0.6856,
-        "info_ratio_vs_sp": 0.1493
+        "grew_1dollar_to": 8.9805,
+        "cagr": 0.0761,
+        "volatility": 0.3108,
+        "sharpe": 0.3223,
+        "sortino": 0.4377,
+        "calmar": 0.1021,
+        "max_drawdown": -0.7454,
+        "info_ratio_vs_sp": 0.0207
       },
       "3-tier 4x": {
-        "grew_1dollar_to": 20.8922,
-        "cagr": 0.1069,
-        "volatility": 0.4141,
-        "sharpe": 0.4026,
-        "sortino": 0.5471,
-        "calmar": 0.1317,
-        "max_drawdown": -0.8113,
-        "info_ratio_vs_sp": 0.2109
+        "grew_1dollar_to": 8.1214,
+        "cagr": 0.0725,
+        "volatility": 0.4121,
+        "sharpe": 0.3259,
+        "sortino": 0.4425,
+        "calmar": 0.0854,
+        "max_drawdown": -0.8491,
+        "info_ratio_vs_sp": 0.1148
       }
     },
     "last 15y": {
@@ -946,44 +946,44 @@
         "info_ratio_vs_sp": -0.3237
       },
       "3-tier 1.5x": {
-        "grew_1dollar_to": 5.012,
-        "cagr": 0.1138,
-        "volatility": 0.162,
-        "sharpe": 0.6527,
-        "sortino": 0.8849,
-        "calmar": 0.4422,
-        "max_drawdown": -0.2573,
-        "info_ratio_vs_sp": -0.2224
+        "grew_1dollar_to": 2.7305,
+        "cagr": 0.0695,
+        "volatility": 0.1552,
+        "sharpe": 0.4125,
+        "sortino": 0.5577,
+        "calmar": 0.2451,
+        "max_drawdown": -0.2835,
+        "info_ratio_vs_sp": -0.499
       },
       "3-tier 2x": {
-        "grew_1dollar_to": 5.9515,
-        "cagr": 0.1267,
-        "volatility": 0.2089,
-        "sharpe": 0.6032,
-        "sortino": 0.8155,
-        "calmar": 0.3918,
-        "max_drawdown": -0.3233,
-        "info_ratio_vs_sp": -0.0626
+        "grew_1dollar_to": 3.2422,
+        "cagr": 0.0818,
+        "volatility": 0.2037,
+        "sharpe": 0.4138,
+        "sortino": 0.5586,
+        "calmar": 0.2337,
+        "max_drawdown": -0.3501,
+        "info_ratio_vs_sp": -0.3077
       },
       "3-tier 3x": {
-        "grew_1dollar_to": 7.4814,
-        "cagr": 0.144,
-        "volatility": 0.3056,
-        "sharpe": 0.5452,
-        "sortino": 0.7355,
-        "calmar": 0.3266,
-        "max_drawdown": -0.441,
-        "info_ratio_vs_sp": 0.1286
+        "grew_1dollar_to": 4.0752,
+        "cagr": 0.0985,
+        "volatility": 0.3021,
+        "sharpe": 0.4134,
+        "sortino": 0.5573,
+        "calmar": 0.2086,
+        "max_drawdown": -0.472,
+        "info_ratio_vs_sp": -0.0466
       },
       "3-tier 4x": {
-        "grew_1dollar_to": 8.0519,
-        "cagr": 0.1497,
-        "volatility": 0.4037,
-        "sharpe": 0.5131,
-        "sortino": 0.6917,
-        "calmar": 0.2747,
-        "max_drawdown": -0.5449,
-        "info_ratio_vs_sp": 0.2184
+        "grew_1dollar_to": 4.3854,
+        "cagr": 0.1039,
+        "volatility": 0.4011,
+        "sharpe": 0.4125,
+        "sortino": 0.5558,
+        "calmar": 0.1751,
+        "max_drawdown": -0.5932,
+        "info_ratio_vs_sp": 0.0892
       }
     }
   },

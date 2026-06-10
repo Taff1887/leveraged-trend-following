@@ -87,14 +87,16 @@ The switch wins on CAGR, Sharpe **and** drawdown at every level — over a centu
 ## Variants that sidestep the downturns
 
 Going to **cash** below the MA (instead of 1×) raises returns *and* shallows the
-drawdown; a **3-tier** rule (leverage → S&P → cash, using a 3-month + 200-day MA)
-gets the closest of any leveraged variant to plain MA→cash on risk-adjusted terms:
+drawdown — the best risk-adjusted of the leveraged variants over the full century
+(Sharpe ~0.57). A **3-tier** rule (leverage → S&P → cash, with the 3-month MA as a
+*fast cash trigger* for sharp down moves) keeps drawdowns shallow but **whipsaws in
+bull markets** (last 15y Sharpe just 0.41 — see paper §8):
 
-| Strategy | Grew $1 to | CAGR | Vol | Sharpe | Max DD | Calmar |
+| Strategy (1928+) | Grew $1 to | CAGR | Vol | Sharpe | Max DD | Calmar |
 |---|---|---|---|---|---|---|
-| Lev 2× above → **cash** | $1,305,593 | 15.6% | 25.3% | 0.57 | −75% | 0.21 |
-| **3-tier** 1.5× | $83,682 | 12.4% | 17.4% | 0.57 | −58% | 0.21 |
-| **3-tier** 2× | $460,493 | 14.3% | 22.5% | 0.57 | −68% | 0.21 |
+| Lev 2× above → **cash** | $1,305,593 | 15.6% | 25.3% | **0.57** | −75% | 0.21 |
+| **3-tier** 1.5× (fast cash) | $21,440 | 10.8% | 16.9% | 0.50 | −61% | 0.18 |
+| **3-tier** 2× (fast cash) | $117,974 | 12.7% | 22.1% | 0.51 | −73% | 0.18 |
 
 <p align="center">
 <img src="charts/lev_cash_full.png" width="49%">
@@ -152,9 +154,10 @@ buy bottoms — which is why leveraging *below* the trend fails.
 ## How much leverage is too much?
 
 Two maps over trend (the 1× CAGR) and volatility. The **zero-return** map shows the
-leverage at which volatility decay exactly cancels the trend — for the recent S&P
-(CAGR ~15%, vol ~18%) that flat point is **≈ 10×**, so a "10× S&P" fund would have
-gone nowhere. The **break-even** map shows the leverage that merely *ties* 1× (≈ 3.1×
+leverage at which volatility decay cancels the drift (`L = 2μ/σ²`) — for the recent
+S&P (mean return ~16%, vol ~18%) that flat point is **≈ 10×**, so a "10× S&P" fund
+would have gone nowhere. The **break-even** map shows the leverage that merely
+*ties* 1× (≈ 3.1×
 for the S&P; the growth-optimal "Kelly" level is ≈ 2×).
 
 <p align="center">

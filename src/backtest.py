@@ -264,21 +264,25 @@ def three_tier_strategy(prices: pd.Series, underlying_returns: pd.Series,
                         leverage: float, slow_window: int = 200,
                         fast_window: int = 63, rf_daily=0.0,
                         costs: dict | None = None) -> StrategyResult:
-    """A three-state "Leverage -> S&P -> Cash" rule using a fast (3-month) MA and
-    a slow (200-day) MA:
+    """A three-state "Leverage -> S&P -> Cash" rule where the FAST (3-month) MA is
+    the cash trigger, so a sharp down move pulls you out fast (bear markets tend to
+    be short and sharp, so getting to cash quickly matters more than waiting for
+    the slow 200-day MA to break):
 
-        * above BOTH MAs           -> ``leverage``x  (strong uptrend)
-        * above slow, below fast   -> 1x S&P         (mild pullback)
-        * below the slow MA        -> cash           (real downtrend)
+        * above BOTH MAs (fast & slow)  -> ``leverage``x  (strong, calm uptrend)
+        * below the FAST MA             -> CASH           (sharp drop -> get out)
+        * above fast, below slow        -> 1x S&P         (recovering off a low)
 
     Both signals are lagged one day (no look-ahead).
     """
-    slow = lagged_signal(prices, slow_window)
-    fast = lagged_signal(prices, fast_window)
+    slow = lagged_signal(prices, slow_window)   # 1 if above the 200-day MA
+    fast = lagged_signal(prices, fast_window)   # 1 if above the 3-month MA
     df = pd.concat([slow.rename("s"), fast.rename("f")], axis=1).dropna()
-    exposure = pd.Series(1.0, index=df.index)          # default: 1x
-    exposure[df["s"] == 0.0] = 0.0                      # below slow -> cash
-    exposure[(df["s"] == 1.0) & (df["f"] == 1.0)] = leverage  # above both -> leverage
+    exposure = pd.Series(0.0, index=df.index)               # default: cash
+    # above the fast MA but still below the slow MA -> recovering, hold 1x.
+    exposure[(df["f"] == 1.0) & (df["s"] == 0.0)] = 1.0
+    # above BOTH MAs -> strong uptrend, apply leverage.
+    exposure[(df["f"] == 1.0) & (df["s"] == 1.0)] = leverage
     res = run_exposure_strategy(underlying_returns, exposure, rf_daily, costs,
                                 name=f"3-tier {leverage:g}x ({fast_window}/{slow_window}d)")
     res.meta.update({"slow_window": slow_window, "fast_window": fast_window,

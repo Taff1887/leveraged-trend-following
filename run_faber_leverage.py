@@ -378,40 +378,40 @@ def step3c_zero_return_map(u):
     far above it you are effectively wiped out (terminal wealth -> 0).
     """
     print("[step 3c] zero-return (flat) leverage map ...")
-    # S&P marker: realised CAGR & volatility over the LAST ~10 years.
+    # S&P marker: ARITHMETIC mean return & volatility over the LAST ~10 years.
     last10 = u[u.index >= (u.index.max() - pd.Timedelta(days=3653))]
-    g_sp = mx.cagr(last10)
+    mu_sp = float(last10.mean() * config.TRADING_DAYS_PER_YEAR)   # arithmetic mean drift
     sig_sp = mx.annual_volatility(last10)
-    Lzero_sp = 2 * g_sp / sig_sp ** 2 + 1
+    Lzero_sp = 2 * mu_sp / sig_sp ** 2                            # flat-return leverage
 
-    cagrs = np.linspace(0.0, 0.20, 81)   # 1x CAGR ("trend")
+    mus = np.linspace(0.0, 0.20, 81)    # annual ARITHMETIC mean return ("drift")
     vols = np.linspace(0.05, 0.60, 81)
-    G, V = np.meshgrid(cagrs, vols)
-    Lzero = np.clip(2.0 * G / V ** 2 + 1.0, 1.0, 15.0)
+    M, V = np.meshgrid(mus, vols)
+    Lzero = np.clip(2.0 * M / V ** 2, 1.0, 15.0)
 
     pl.setup_style()
     fig, ax = plt.subplots(figsize=(11.5, 6.8))
-    cf = ax.contourf(G * 100, V * 100, Lzero, levels=np.linspace(1, 15, 29),
+    cf = ax.contourf(M * 100, V * 100, Lzero, levels=np.linspace(1, 15, 29),
                      cmap="RdYlGn", extend="max")
-    lines = ax.contour(G * 100, V * 100, Lzero,
+    lines = ax.contour(M * 100, V * 100, Lzero,
                        levels=[2, 3, 4, 5, 7, 10, 13], colors="black", linewidths=1.0)
     ax.clabel(lines, fmt=lambda x: f"{x:g}x", fontsize=9)
-    ax.plot(g_sp * 100, sig_sp * 100, marker="*", color="black", markersize=22,
+    ax.plot(mu_sp * 100, sig_sp * 100, marker="*", color="black", markersize=22,
             markeredgecolor="white", zorder=5)
-    ax.annotate(f"S&P 500 (last 10y)\nCAGR {g_sp:.1%}, vol {sig_sp:.0%}\n"
+    ax.annotate(f"S&P 500 (last 10y)\nmean {mu_sp:.1%}, vol {sig_sp:.0%}\n"
                 f"flat-return leverage ≈ {Lzero_sp:.1f}x",
-                xy=(g_sp * 100, sig_sp * 100), xytext=(g_sp * 100 - 6.5, sig_sp * 100 + 11),
+                xy=(mu_sp * 100, sig_sp * 100), xytext=(mu_sp * 100 - 6.5, sig_sp * 100 + 11),
                 fontsize=9, arrowprops=dict(arrowstyle="->", color="black"),
                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="black", alpha=0.85))
-    fig.colorbar(cf, ax=ax).set_label("Zero-return daily leverage (total compound return = 0)")
-    ax.set_xlabel("Annual trend  (1x CAGR, %)")
+    fig.colorbar(cf, ax=ax).set_label("Zero-return daily leverage  L = 2μ/σ²")
+    ax.set_xlabel("Annual drift  (arithmetic mean return μ, %)")
     ax.set_ylabel("Annual volatility (%)")
-    ax.set_title("Where volatility decay eats the whole trend\n"
+    ax.set_title("Where volatility decay eats the whole drift\n"
                  "Leverage at the contour gives 0% total return; above it, "
                  "leverage LOSES money (e.g. ~10x flattens the recent S&P)")
     save_chart(fig, "F3_zero_return_leverage_map.png")
 
-    H["step3c_zero_return"] = {"sp_last10_cagr": r4(g_sp), "sp_last10_vol": r4(sig_sp),
+    H["step3c_zero_return"] = {"sp_last10_mean": r4(mu_sp), "sp_last10_vol": r4(sig_sp),
                                "sp_zero_return_leverage": r4(Lzero_sp)}
 
 
@@ -536,12 +536,16 @@ def step9_constant_vs_switch(daily_idx, u, rf_d):
             u, L, rf_daily=rf_d, costs=config.DEFAULT_COSTS).net_returns
         strat[f"Lev {L:g}x above MA"] = bt.leveraged_above_ma(
             daily_idx, u, 200, L, rf_daily=rf_d, costs=config.DEFAULT_COSTS).net_returns
-        styles[f"Always {L:g}x (constant)"] = ":"     # constant = dotted
+        styles[f"Always {L:g}x (constant)"] = "--"    # constant = dashed (clearly visible)
         styles[f"Lev {L:g}x above MA"] = "-"          # MA-switch = solid
     t = strat_table(strat, rf_d, bench=bench)
     save_table(t, "faber_step9_constant_vs_switch.csv")
-    equity_chart(strat, "Constant leverage (dotted) vs MA-switched leverage (solid), net",
-                 "F12_constant_vs_switch.png", styles=styles)
+    # Chart over the LAST 10 YEARS so the dashed (constant) vs solid (switched)
+    # lines are clearly distinguishable; the table above is the full history.
+    start = u.index.max() - pd.Timedelta(days=3653)
+    strat10 = {n: r[r.index >= start] for n, r in strat.items()}
+    equity_chart(strat10, "Constant leverage (dashed) vs MA-switched leverage (solid), "
+                 "last 10 years, net", "F12_constant_vs_switch.png", styles=styles)
     H["step9_constant_vs_switch"] = table_to_headline(t)
 
 
